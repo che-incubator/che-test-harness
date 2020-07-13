@@ -1,0 +1,109 @@
+{
+  "metadata": {
+    "name": "java-eap-maven-5wp9i"
+  },
+  "projects": [
+    {
+      "name": "kitchensink-example",
+      "source": {
+        "location": "http://devfile-registry-codeready-workspaces-operator-qe.apps.crw-osd.q8h6.s1.devshift.org/resources/java-eap-maven-kitchensink-example-master.zip",
+        "type": "zip"
+      }
+    }
+  ],
+  "components": [
+    {
+      "id": "redhat/java8/latest",
+      "type": "chePlugin"
+    },
+    {
+      "id": "redhat/dependency-analytics/latest",
+      "type": "chePlugin"
+    },
+    {
+      "mountSources": true,
+      "endpoints": [
+        {
+          "name": "eap",
+          "port": 8080
+        }
+      ],
+      "memoryLimit": "1024Mi",
+      "type": "dockerimage",
+      "volumes": [
+        {
+          "name": "m2",
+          "containerPath": "/home/jboss/.m2"
+        }
+      ],
+      "alias": "maven",
+      "image": "registry.redhat.io/jboss-eap-7/eap73-openjdk8-openshift-rhel7@sha256:f355c9673c09f98c223e73c64ab424dc9f5f756fdeb74a4d33f387411fa27738",
+      "env": [
+        {
+          "value": "-Xmx200m -XX:MaxRAMPercentage=50.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xms20m -Djava.security.egd=file:/dev/./urandom -Duser.home=/home/jboss",
+          "name": "MAVEN_OPTS"
+        },
+        {
+          "value": "-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n -Dsun.util.logging.disableCallerCheck=true",
+          "name": "JAVA_OPTS_APPEND"
+        }
+      ]
+    }
+  ],
+  "apiVersion": "1.0.0",
+  "commands": [
+    {
+      "name": "1. Build",
+      "actions": [
+        {
+          "workdir": "${CHE_PROJECTS_ROOT}/kitchensink-example",
+          "type": "exec",
+          "command": "scl enable rh-maven35 'mvn clean install'",
+          "component": "maven"
+        }
+      ]
+    },
+    {
+      "name": "2. Configure web server",
+      "actions": [
+        {
+          "workdir": "/opt/eap/bin",
+          "type": "exec",
+          "command": "./jboss-cli.sh --connect --command=\"data-source add --name=ExampleDS --jndi-name=java:jboss/datasources/ExampleDS --driver-name=h2 --connection-url=jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE --user-name=sa --password=sa\" && echo 'Server was configured'",
+          "component": "maven"
+        }
+      ]
+    },
+    {
+      "name": "3. Copy war",
+      "actions": [
+        {
+          "workdir": "${CHE_PROJECTS_ROOT}/kitchensink-example",
+          "type": "exec",
+          "command": "cp target/*.war /opt/eap/standalone/deployments/ROOT.war && echo 'Archive was deployed, click on eap endpoint from Workspace view to open the application'",
+          "component": "maven"
+        }
+      ]
+    },
+    {
+      "name": "4. Hot update",
+      "actions": [
+        {
+          "workdir": "${CHE_PROJECTS_ROOT}/kitchensink-example",
+          "type": "exec",
+          "command": "scl enable rh-maven35 'mvn clean install' && sleep 2 && cp target/*.war /opt/eap/standalone/deployments/ROOT.war",
+          "component": "maven"
+        }
+      ]
+    },
+    {
+      "name": "Debug (Attach)",
+      "actions": [
+        {
+          "referenceContent": "{\n\"version\": \"0.2.0\",\n\"configurations\": [\n{\n    \"type\": \"java\",\n    \"request\": \"attach\",\n    \"name\": \"Debug (Attach)\",\n    \"hostName\": \"localhost\",\n    \"port\": 8000\n}\n]\n}\n",
+          "type": "vscode-launch"
+        }
+      ]
+    }
+  ]
+}
