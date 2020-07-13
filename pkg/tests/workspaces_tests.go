@@ -1,9 +1,9 @@
 package tests
 
 import (
+	"github.com/che-incubator/che-test-harness/pkg/client"
+	"github.com/che-incubator/che-test-harness/pkg/controller/workspaces"
 	"github.com/onsi/ginkgo"
-	"gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/pkg/client"
-	"gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/pkg/controller/workspaces"
 	"go.uber.org/zap"
 	"io/ioutil"
 	"path/filepath"

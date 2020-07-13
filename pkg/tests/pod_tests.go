@@ -3,12 +3,12 @@ package tests
 import (
 	"crypto/tls"
 	"encoding/json"
+	"github.com/che-incubator/che-test-harness/pkg/client"
+	"github.com/che-incubator/che-test-harness/pkg/controller"
+	"github.com/che-incubator/che-test-harness/pkg/monitors/metadata"
 	"github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/sirupsen/logrus"
-	"gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/pkg/client"
-	"gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/pkg/controller"
-	"gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/pkg/monitors/metadata"
 	"net/http"
 )
 

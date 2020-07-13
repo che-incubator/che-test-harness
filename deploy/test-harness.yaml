@@ -1,7 +1,7 @@
 # This file is used to detect if the tests are running against upstream or downstream
 version: 2.2.0-nightly
 osd: true
-flavor: codeready # The values can be che or codeready
+flavor: che # The values can be che or codeready
 KubernetesImagePuller:
   Namespace: k8s-image-puller
   Image: quay.io/eclipse/kubernetes-image-puller:latest

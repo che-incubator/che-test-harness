@@ -33,7 +33,7 @@ github.com/go-openapi/jsonreference
 github.com/go-openapi/spec
 # github.com/go-openapi/swag v0.0.0-20160704191624-1d0bd113de87
 github.com/go-openapi/swag
-# github.com/gogo/protobuf v1.2.1
+# github.com/gogo/protobuf v1.1.1
 github.com/gogo/protobuf/proto
 github.com/gogo/protobuf/sortkeys
 # github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
@@ -121,9 +121,7 @@ github.com/onsi/gomega/types
 # github.com/openshift/api v0.0.0-20200221181648-8ce0047d664f
 github.com/openshift/api/console/v1
 github.com/openshift/api/oauth/v1
-github.com/openshift/api/pkg/serialization
 github.com/openshift/api/route/v1
-github.com/openshift/api/template/v1
 github.com/openshift/api/user/v1
 # github.com/pborman/uuid v1.2.0
 github.com/pborman/uuid
@@ -379,15 +377,8 @@ k8s.io/client-go/util/workqueue
 k8s.io/kube-openapi/pkg/common
 k8s.io/kube-openapi/pkg/util/proto
 # k8s.io/kubernetes v1.12.3
+k8s.io/kubernetes/pkg/api/v1/pod
 k8s.io/kubernetes/pkg/kubelet/events
-# k8s.io/metrics v0.0.0-20181126160146-bbe7891c54bf
-k8s.io/metrics/pkg/apis/metrics
-k8s.io/metrics/pkg/apis/metrics/v1alpha1
-k8s.io/metrics/pkg/apis/metrics/v1beta1
-k8s.io/metrics/pkg/client/clientset/versioned
-k8s.io/metrics/pkg/client/clientset/versioned/scheme
-k8s.io/metrics/pkg/client/clientset/versioned/typed/metrics/v1alpha1
-k8s.io/metrics/pkg/client/clientset/versioned/typed/metrics/v1beta1
 # sigs.k8s.io/controller-runtime v0.1.8
 sigs.k8s.io/controller-runtime/pkg/cache
 sigs.k8s.io/controller-runtime/pkg/cache/internal

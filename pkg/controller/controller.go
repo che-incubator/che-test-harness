@@ -3,9 +3,9 @@ package controller
 import (
 	"sync"
 
+	"github.com/che-incubator/che-test-harness/pkg/client"
+	"github.com/che-incubator/che-test-harness/pkg/controller/logger"
 	"github.com/eclipse/che-operator/pkg/controller/che"
-	"gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/pkg/client"
-	"gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/pkg/controller/logger"
 	"go.uber.org/zap"
 )
 

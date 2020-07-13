@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/cmd/operator_osd/config"
-	"gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/pkg/deploy"
+	"github.com/che-incubator/che-test-harness/cmd/che/config"
+	"github.com/che-incubator/che-test-harness/pkg/deploy"
 )
 
 const (

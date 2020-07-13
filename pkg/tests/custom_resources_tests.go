@@ -1,9 +1,9 @@
 package tests
 
 import (
+	"github.com/che-incubator/che-test-harness/pkg/monitors/metadata"
 	"github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/pkg/monitors/metadata"
 	"k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"

@@ -1,7 +1,7 @@
 package deploy
 
 import (
-	"gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/cmd/operator_osd/config"
+	"github.com/che-incubator/che-test-harness/cmd/che/config"
 	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

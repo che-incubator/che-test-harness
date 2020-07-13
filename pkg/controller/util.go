@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/pkg/monitors/metadata"
+	"github.com/che-incubator/che-test-harness/pkg/monitors/metadata"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
