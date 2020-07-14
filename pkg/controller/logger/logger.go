@@ -1,7 +1,6 @@
 package logger
 
 import (
-	"github.com/che-incubator/che-test-harness/cmd/che/config"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -66,7 +65,7 @@ func initZap(logLevel string) (*zap.Logger, error) {
 		Encoding:         "json",
 		EncoderConfig:    zapEncoderConfig,
 		OutputPaths:      []string{
-			config.TestHarnessConfig.Artifacts +"/che-test-harness-logs.log",
+			"/test-run-results/codeready-addon-logs.log",
 			"stdout",
 		},
 		ErrorOutputPaths: []string{"stderr"},

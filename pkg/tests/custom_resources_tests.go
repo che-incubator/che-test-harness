@@ -11,7 +11,7 @@ import (
 
 var _ = KubeDescribe( "[Custom Resources]", func() {
 	ginkgo.It("Check if CRD already exist in Cluster", func() {
-		Logger.Info("Checking if CRD for Che exist in cluster")
+		Logger.Info("Checking if CRD for Code Ready Workspaces exist in cluster")
 		// Move this client
 		cfg, err := config.GetConfig()
 		apiextensions, err := clientset.NewForConfig(cfg)

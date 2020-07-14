@@ -16,14 +16,14 @@ type metadata struct {
 
 	ClusterTimeUp float64 `json:"cluster-time-up, int"`
 
-	ChePodsInfo []ChePodsInfo `json:"pods-info,string"`
+	CodeReadyPodsInfo []CodeReadyPods `json:"pods-info,string"`
 
-	ChePodTime PodTimes `json:"pods-up-times, int"`
+	CRWPodTime PodTimes `json:"pods-up-times, int"`
 
 	WorkspacesMeasureTime WorkspacesMeasureTime `json:"workspaces-measure-time, int"`
 
-	//Returns true or false depending if che server is UP
-	CheServerIsUp bool `json:"che_apiserver_is_up, bool"`
+	//Returns true or false depending if code ready server is UP
+	CodeReadyServerIsUp bool `json:"codeready_apiserver_is_up, bool"`
 }
 
 type PodTimes struct {
@@ -39,19 +39,19 @@ type WorkspacesMeasureTime struct {
 	JavaMavenWorkspace float64 `json:"java_maven_workspace, float64"`
 }
 
-type ChePodsInfo struct {
+type CodeReadyPods struct {
 	Name        string             `json:"name, string"`
 	DockerImage string             `json:"docker_image, string"`
 	Status      v1.PodPhase        `json:"status, string"`
 	Labels      map[string]string  `json:"labels, string"`
 }
 
-type CHE_NAMESPACE struct {
+type CRW_NAMESPACE struct {
 	Name string
 	UP bool
 }
 
-var Namespace = CHE_NAMESPACE{}
+var Namespace = CRW_NAMESPACE{}
 var Instance  = metadata{}
 
 // WriteToJSON will marshall the metadata struct a	nd write it into the given file.

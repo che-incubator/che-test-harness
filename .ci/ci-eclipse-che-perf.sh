@@ -1,7 +1,6 @@
 #!/bin/bash
 
 export CODEREADY_NAMESPACE="che"
-export ARTIFACTS_DIR="/tmp/artifacts"
 
 function init() {
   # shellcheck disable=SC2155
@@ -33,18 +32,10 @@ function deployTestHArness() {
     ${TEST_HARNESS_ROOT}/bin/che-test-harness
 }
 
-# Function to get all events from Che deployments
-getCheClusterEvents() {
-  mkdir -p ${ARTIFACTS_DIR}/che-events
-  cd ${ARTIFACTS_DIR}/che-logs
-  oc get events -n ${CODEREADY_NAMESPACE} | tee get_events.log
-}
-
 function run() {
     init
     installCheOperator
     deployTestHArness
-    getCheClusterEvents
 }
 
 run
