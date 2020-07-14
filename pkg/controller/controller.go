@@ -30,16 +30,16 @@ func (c *TestHarnessController) RunTestHarness() bool {
 	}
 
 	c.Logger.Info("Generating Custom Resource in cluster")
-	//Create a new Code Ready Workspaces Custom resources into a giving namespace.
+	//Create a new Eclipse Che Custom resources into a giving namespace.
 	if err := c.CreateCustomResource(); err != nil {
 		c.Logger.Panic("Failed to create custom resources in cluster", zap.Error(err))
 	}
 
-	c.Logger.Info("Successfully created CodeReady Custom Resources")
+	c.Logger.Info("Successfully created Eclipse Che Custom Resources")
 
-	// Check If all kubernetes objects for code ready workspaces are created in cluster
+	// Check If all kubernetes objects for eclipse che are created in cluster
 	// !Timeout is 15 minutes
-	c.Logger.Info("Starting to check Code Ready Cluster if is available")
+	c.Logger.Info("Starting to check if Eclipse Che Cluster is available")
 	deploy, _ := c.WatchCustomResource(che.AvailableStatus)
 
 	return deploy

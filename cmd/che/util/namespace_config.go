@@ -29,17 +29,17 @@ func GetNamespace(namespace string) (*v1.Namespace, error) {
 
 func OsdSetupNameSpace() bool {
 	OsdNamespaces := []string{CrwNamespace, QeNamespace, NonOsdNamespace}
-	Logger.Info("Start to detect namespace where CRW operator was deployed...")
+	Logger.Info("Start to detect namespace where Che operator was deployed...")
 	for _, namespace := range OsdNamespaces {
 		_, err := GetNamespace(namespace)
 		if err == nil {
-			Logger.Info("Code Ready Workspaces detected on namespace: " + namespace)
+			Logger.Info("Eclipse Che Operator detected on namespace: " + namespace)
 			metadata.Namespace.Name = namespace
 
 			return true
 		}
 	}
 
-	Logger.Error("Error on start Code Ready Workspaces Test Harness. Please check provided namespace")
+	Logger.Error("Error on start Eclipse Che Test Harness. Please check provided namespace")
 	return false
 }

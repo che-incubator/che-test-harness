@@ -28,8 +28,7 @@ const (
 
 var Logger = &log.Zap
 
-//SynchronizedBeforeSuite blocks are primarily meant to solve the problem of setting up the custom resources for
-//Code Ready Workspaces
+// SynchronizedBeforeSuite blocks are primarily meant to solve the problem of setting up the custom resources for Eclipse Che
 var _ = ginkgo.SynchronizedBeforeSuite(func() []byte {
 	// Generate kubernetes client go to access cluster
 	k8sClient, err := client.NewK8sClient()
@@ -37,16 +36,17 @@ var _ = ginkgo.SynchronizedBeforeSuite(func() []byte {
 		panic(err)
 	}
 
-	// Check if Code Ready Workspaces operator is installed on OSD namespace or external namespace
+	// Check if Eclipse Che operator is installed on OSD namespace or external namespace
 	start := util.OsdSetupNameSpace()
 	if !start {
-		// In case if CRW Operator not found in any namespace specified the software will crush
+		// In case if Eclipse Che Operator not found in any namespace specified the software will crush
 		os.Exit(1)
 	}
 
 	//!TODO: Try to create a specific function to call all <ginkgo suite> configuration.
 	Logger.Info("Starting to setup objects before run ginkgo suite")
-	// Initialize Codeready Kubernetes client to create resources in a giving namespace
+
+	// Initialize Kubernetes client to create resources in a giving namespace
 	ctrl := controller.NewTestHarnessController(k8sClient)
 
 	if !ctrl.RunTestHarness() {
@@ -82,7 +82,7 @@ func TestHarnessChe(t *testing.T) {
 		Logger.Panic("Failed to get Che Test Harness Configuration. Please Check your configuration file: deploy/test-harness.yaml")
 	}
 
-	// configure zap logging for codeready addon, Zap Logger create a file <*.log> where is possible
+	// configure zap logging for, Zap Logger create a file <*.log> where is possible
 	//to find information about addon execution.
 	Logger, _ := log.ZapLogger()
 
@@ -93,8 +93,8 @@ func TestHarnessChe(t *testing.T) {
 	r = append(r, reporters.NewJUnitReporter(filepath.Join(config.TestHarnessConfig.Artifacts, jUnitOutputFilename)))
 	r = append(r, util.NewDetailsReporterFile(filepath.Join(config.TestHarnessConfig.Artifacts, DebugSummaryOutput)))
 
-	Logger.Info("Running Code Ready Workspaces e2e tests...")
-	ginkgo.RunSpecsWithDefaultAndCustomReporters(t, "Code Ready Operator Test Harness", r)
+	Logger.Info("Running Eclipse Che e2e tests...")
+	ginkgo.RunSpecsWithDefaultAndCustomReporters(t, "Eclipse Che Test Harness", r)
 
 	err := metadata.Instance.WriteToJSON(filepath.Join(config.TestHarnessConfig.Artifacts, addonMetadataName))
 	if err != nil {

@@ -7,16 +7,16 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// CreateCodeReadyCluster create the CR necessary to deploy Eclipse Che/ Code Ready Workspaces
-func CreateCodeReadyCluster() *orgv1.CheCluster {
+// CreateEclipseCheCluster create the CR necessary to deploy Eclipse Che
+func CreateEclipseCheCluster() *orgv1.CheCluster {
 	return &orgv1.CheCluster{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      config.TestHarnessConfig.Flavor,
 			Namespace: metadata.Namespace.Name,
 		},
 		TypeMeta: metav1.TypeMeta{
-			Kind:       CodeReadyKind,
-			APIVersion: CodeReadyAPIVersion,
+			Kind:       CheKind,
+			APIVersion: CheAPIVersion,
 		},
 		Spec: orgv1.CheClusterSpec{
 			Server: orgv1.CheClusterSpecServer{

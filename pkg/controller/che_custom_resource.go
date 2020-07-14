@@ -38,7 +38,7 @@ func (c *TestHarnessController) GetCustomResource() (*orgv1.CheCluster, error) {
 // CreateCustomResource make an api request to K8s API to delete Che Cluster
 func (c *TestHarnessController) CreateCustomResource() (err error) {
 	result := orgv1.CheCluster{}
-	cheCluster := deploy.CreateCodeReadyCluster()
+	cheCluster := deploy.CreateEclipseCheCluster()
 
 	err = c.kubeClient.KubeRest().
 		Post().

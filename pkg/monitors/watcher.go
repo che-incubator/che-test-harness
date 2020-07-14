@@ -60,7 +60,7 @@ func NewPodStartupDataMonitor(c clientset.Interface) *PodStartupLatencyDataMonit
 	}
 }
 
-// Descibe all pod events in given namespace for Code Ready Workspaces
+// Descibe all pod events in given namespace for Eclipse Che
 // !TODO: Create a simple custom controller using workqueue https://itnext.io/how-to-create-a-kubernetes-custom-controller-using-client-go-f36a7a7536cc
 // https://insujang.github.io/2020-02-13/programming-kubernetes-crd/
 func (pm *PodStartupLatencyDataMonitor) DescribeEvents(stopCh chan struct{}) error {
@@ -188,23 +188,23 @@ func (pm *PodStartupLatencyDataMonitor) updateMetric(key string, data *PodStartu
 
 		// TODO: Find a better way to identify pods running
 		if strings.Contains(key, "postgres") {
-			metadata.Instance.CRWPodTime.PostgresUpTime= startupTime
+			metadata.Instance.ChePodTime.PostgresUpTime= startupTime
 		}
 
 		if strings.Contains(key, "keycloak") {
-			metadata.Instance.CRWPodTime.KeycloakUpTime= startupTime
+			metadata.Instance.ChePodTime.KeycloakUpTime= startupTime
 		}
 
 		if strings.Contains(key, "plugin-registry") {
-			metadata.Instance.CRWPodTime.PluginRegUpTime= startupTime
+			metadata.Instance.ChePodTime.PluginRegUpTime= startupTime
 		}
 
 		if strings.Contains(key, "devfile-registry") {
-			metadata.Instance.CRWPodTime.DevFileUpTime= startupTime
+			metadata.Instance.ChePodTime.DevFileUpTime= startupTime
 		}
 
-		if strings.Contains(key, config.TestHarnessConfig.Flavor) && ! strings.Contains(key, "codeready-operator") {
-			metadata.Instance.CRWPodTime.ServerUpTime= startupTime
+		if strings.Contains(key, config.TestHarnessConfig.Flavor) && ! strings.Contains(key, "che-operator") {
+			metadata.Instance.ChePodTime.ServerUpTime= startupTime
 		}
 	}
 }

@@ -136,9 +136,9 @@ var _ =  KubeDescribe( "[Pods]" , func() {
 		decoder := json.NewDecoder(resp.Body)
 		err = decoder.Decode(&t)
 		if err != nil {
-			metadata.Instance.CodeReadyServerIsUp = false
+			metadata.Instance.CheServerIsUp = false
 		} else {
-			metadata.Instance.CodeReadyServerIsUp = true
+			metadata.Instance.CheServerIsUp = true
 		}
 
 		Expect(err).NotTo(HaveOccurred())
