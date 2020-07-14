@@ -118,7 +118,7 @@ func DescribePodLogs(podName string)  {
 
 	str := buf.Bytes()
 
-	err := ioutil.WriteFile("/test-run-results/codeready_" + podName + ".log", str, 0644)
+	err := ioutil.WriteFile("/tmp/artifacts/che" + podName + ".log", str, 0644)
 	if err != nil {
 		Logger.Error("error writing logs to file")
 	}

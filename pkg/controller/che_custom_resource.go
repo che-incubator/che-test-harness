@@ -80,7 +80,6 @@ func (c *TestHarnessController) WatchCustomResource(status string) (deployed boo
 			if customResource.Status.CheClusterRunning != status {
 			} else {
 				metadata.Instance.ClusterTimeUp = time.Since(clusterStarted).Seconds()
-				c.Logger.Info("Successfully deployed Code Ready Workspaces version: " + customResource.Status.CheVersion)
 				return true, nil
 			}
 		}
