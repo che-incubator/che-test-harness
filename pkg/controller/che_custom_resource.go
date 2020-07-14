@@ -2,13 +2,13 @@ package controller
 
 import (
 	"errors"
-	"gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/cmd/operator_osd/config"
+	"github.com/che-incubator/che-test-harness/cmd/che/config"
 	"time"
 
+	"github.com/che-incubator/che-test-harness/pkg/deploy"
+	"github.com/che-incubator/che-test-harness/pkg/monitors"
+	"github.com/che-incubator/che-test-harness/pkg/monitors/metadata"
 	orgv1 "github.com/eclipse/che-operator/pkg/apis/org/v1"
-	"gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/pkg/deploy"
-	"gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/pkg/monitors"
-	"gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/pkg/monitors/metadata"
 	"go.uber.org/zap"
 )
 

@@ -1,9 +1,9 @@
 package deploy
 
 import (
+	"github.com/che-incubator/che-test-harness/cmd/che/config"
+	"github.com/che-incubator/che-test-harness/pkg/monitors/metadata"
 	orgv1 "github.com/eclipse/che-operator/pkg/apis/org/v1"
-	"gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/cmd/operator_osd/config"
-	"gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/pkg/monitors/metadata"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -20,8 +20,7 @@ func CreateCodeReadyCluster() *orgv1.CheCluster {
 		},
 		Spec: orgv1.CheClusterSpec{
 			Server: orgv1.CheClusterSpecServer{
-				SelfSignedCert: false,
-				TlsSupport:     false,
+				TlsSupport:     true,
 				CheFlavor:      config.TestHarnessConfig.Flavor,
 				CustomCheProperties: map[string]string{
 					"CHE_WORKSPACE_SIDECAR_IMAGE__PULL__POLICY": "IfNotPresent",

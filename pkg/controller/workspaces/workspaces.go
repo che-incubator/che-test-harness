@@ -3,17 +3,17 @@ package workspaces
 import (
 	"bytes"
 	"encoding/json"
-	"gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/cmd/operator_osd/config"
+	"github.com/che-incubator/che-test-harness/cmd/che/config"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
 
+	"github.com/che-incubator/che-test-harness/pkg/client"
+	"github.com/che-incubator/che-test-harness/pkg/controller"
+	"github.com/che-incubator/che-test-harness/pkg/controller/logger"
+	"github.com/che-incubator/che-test-harness/pkg/monitors/metadata"
 	"github.com/sirupsen/logrus"
-	"gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/pkg/client"
-	"gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/pkg/controller"
-	"gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/pkg/controller/logger"
-	"gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/pkg/monitors/metadata"
 	"go.uber.org/zap"
 )
 

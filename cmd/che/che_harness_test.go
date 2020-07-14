@@ -1,23 +1,23 @@
 package operator_tests
 
 import (
-	"gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/cmd/operator_osd/config"
+	"github.com/che-incubator/che-test-harness/cmd/che/config"
 	"os"
 	"path/filepath"
 	"testing"
 
-	"gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/cmd/operator_osd/util"
-	"gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/docs"
-	"gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/pkg/client"
-	"gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/pkg/controller"
-	log "gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/pkg/controller/logger"
+	"github.com/che-incubator/che-test-harness/cmd/che/util"
+	"github.com/che-incubator/che-test-harness/docs"
+	"github.com/che-incubator/che-test-harness/pkg/client"
+	"github.com/che-incubator/che-test-harness/pkg/controller"
+	log "github.com/che-incubator/che-test-harness/pkg/controller/logger"
 	"go.uber.org/zap"
 
+	"github.com/che-incubator/che-test-harness/pkg/monitors/metadata"
+	_ "github.com/che-incubator/che-test-harness/pkg/tests"
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/ginkgo/reporters"
 	"github.com/onsi/gomega"
-	"gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/pkg/monitors/metadata"
-	_ "gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/pkg/tests"
 )
 
 //Create Constant file
@@ -83,7 +83,7 @@ var _ = ginkgo.SynchronizedAfterSuite(func() {
 	}
 }, func() {})
 
-func TestHarnessCodeReadyWorkspaces(t *testing.T) {
+func TestHarnessChe(t *testing.T) {
 	// configure zap logging for codeready addon, Zap Logger create a file <*.log> where is possible
 	//to find information about addon execution.
 	Logger, _ := log.ZapLogger()

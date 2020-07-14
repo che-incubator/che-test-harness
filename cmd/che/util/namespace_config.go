@@ -1,9 +1,9 @@
 package util
 
 import (
-	"gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/pkg/client"
-	log "gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/pkg/controller/logger"
-	"gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/pkg/monitors/metadata"
+	"github.com/che-incubator/che-test-harness/pkg/client"
+	log "github.com/che-incubator/che-test-harness/pkg/controller/logger"
+	"github.com/che-incubator/che-test-harness/pkg/monitors/metadata"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"os"
@@ -18,7 +18,7 @@ var (
 var Logger = &log.Zap
 
 func GetNamespace(namespace string) (*v1.Namespace, error) {
-	// Initialize Codeready Kubernetes client to create resources in a giving namespace
+	// Initialize Kubernetes client to create resources in a giving namespace
 	k8sClient, err := client.NewK8sClient()
 	if err != nil {
 		panic(err)

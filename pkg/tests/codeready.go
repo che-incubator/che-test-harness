@@ -2,10 +2,10 @@ package tests
 
 import (
 	"bytes"
+	"github.com/che-incubator/che-test-harness/pkg/client"
+	logger2 "github.com/che-incubator/che-test-harness/pkg/controller/logger"
+	"github.com/che-incubator/che-test-harness/pkg/monitors/metadata"
 	"github.com/onsi/ginkgo"
-	"gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/pkg/client"
-	logger2 "gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/pkg/controller/logger"
-	"gitlab.cee.redhat.com/codeready-workspaces/crw-osde2e/pkg/monitors/metadata"
 	"io"
 	"io/ioutil"
 	v1 "k8s.io/api/core/v1"
