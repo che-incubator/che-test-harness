@@ -12,6 +12,7 @@ type TestHarnessConfiguration struct {
 	Version               string                `yaml:"version"`
 	OSD                   bool                  `yaml:"osd"`
 	Flavor                string                `yaml:"flavor"`
+	Artifacts             string                `yaml:"artifacts"`
 	KubernetesImagePuller KubernetesImagePuller `yaml:"ImagePullerNamespace"`
 }
 
@@ -39,3 +40,4 @@ func ParseConfigurationFile() error {
 
 	return err
 }
+	

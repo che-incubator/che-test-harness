@@ -48,7 +48,7 @@ var Logger = &logger2.Zap
 
 // KubeDescribe is wrapper function for ginkgo describe. .
 func KubeDescribe(text string, body func()) bool {
-	return ginkgo.Describe("[Code Ready Workspaces Test Harness] "+text, body)
+	return ginkgo.Describe("[Eclipse Che Test Harness] "+text, body)
 }
 
 // GetConfigMap Return info about a specific config map
@@ -85,7 +85,7 @@ func DeletePodByLabel(pod string) (error) {
 
 // DescribePod set metadata and metrics about a specific pod
 func DescribePod (pod *v1.PodList) (err error){
-	var podInfo metadata.CodeReadyPods
+	var podInfo metadata.ChePodsInfo
 
 	for _, v := range pod.Items {
 		podInfo.Name = v.Name
@@ -96,9 +96,9 @@ func DescribePod (pod *v1.PodList) (err error){
 		for _, val := range v.Spec.Containers  {
 			podInfo.DockerImage = val.Image
 		}
-		a := append(metadata.Instance.CodeReadyPodsInfo, podInfo)
+		a := append(metadata.Instance.ChePodsInfo, podInfo)
 
-		metadata.Instance.CodeReadyPodsInfo = a
+		metadata.Instance.ChePodsInfo = a
 	}
 	return err
 }
@@ -118,7 +118,7 @@ func DescribePodLogs(podName string)  {
 
 	str := buf.Bytes()
 
-	err := ioutil.WriteFile("/test-run-results/codeready_" + podName + ".log", str, 0644)
+	err := ioutil.WriteFile("/tmp/artifacts/che" + podName + ".log", str, 0644)
 	if err != nil {
 		Logger.Error("error writing logs to file")
 	}

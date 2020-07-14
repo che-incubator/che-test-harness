@@ -38,7 +38,7 @@ func (c *TestHarnessController) GetCustomResource() (*orgv1.CheCluster, error) {
 // CreateCustomResource make an api request to K8s API to delete Che Cluster
 func (c *TestHarnessController) CreateCustomResource() (err error) {
 	result := orgv1.CheCluster{}
-	cheCluster := deploy.CreateCodeReadyCluster()
+	cheCluster := deploy.CreateEclipseCheCluster()
 
 	err = c.kubeClient.KubeRest().
 		Post().
@@ -80,7 +80,6 @@ func (c *TestHarnessController) WatchCustomResource(status string) (deployed boo
 			if customResource.Status.CheClusterRunning != status {
 			} else {
 				metadata.Instance.ClusterTimeUp = time.Since(clusterStarted).Seconds()
-				c.Logger.Info("Successfully deployed Code Ready Workspaces version: " + customResource.Status.CheVersion)
 				return true, nil
 			}
 		}

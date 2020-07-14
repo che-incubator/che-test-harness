@@ -13,7 +13,7 @@ import (
 )
 
 var _ =  KubeDescribe( "[Pods]" , func() {
-	ginkgo.It("Check `Codeready Operator` integrity", func() {
+	ginkgo.It("Check `Operator` integrity", func() {
 		codeready, err := GetPodByLabel(CodeReadyOperatorLabel)
 		if err != nil {
 			panic(err)
@@ -89,16 +89,16 @@ var _ =  KubeDescribe( "[Pods]" , func() {
 	})
 
 	ginkgo.It("Check `Codeready server` integrity", func() {
-		Logger.Info("Getting information and metrics from Codeready server pod")
-		codeready, err := GetPodByLabel(CodReadyServerLabel)
-		Expect(codeready).NotTo(BeNil())
+		Logger.Info("Getting information and metrics from server server pod")
+		server, err := GetPodByLabel(CodReadyServerLabel)
+		Expect(server).NotTo(BeNil())
 
 		if err != nil {
-			Logger.Panic("Error on getting information about codeready pod.")
+			Logger.Panic("Error on getting information about server pod.")
 		}
 
-		if err := DescribePod(codeready); err != nil {
-			Logger.Fatal("Failed to set metadata about codeready pod.")
+		if err := DescribePod(server); err != nil {
+			Logger.Fatal("Failed to set metadata about server pod.")
 		}
 
 		Expect(err).NotTo(HaveOccurred(), "failed to get information from pod %v\n", CodReadyServerLabel)
@@ -106,7 +106,7 @@ var _ =  KubeDescribe( "[Pods]" , func() {
 
 	ginkgo.It("Check if Codeready Server is already up", func() {
 		var t CHE
-		Logger.Info("Checking if Code Ready API server is up")
+		Logger.Info("Checking if Server API server is up")
 		k8sClient, err := client.NewK8sClient()
 
 		if err != nil {
@@ -136,9 +136,9 @@ var _ =  KubeDescribe( "[Pods]" , func() {
 		decoder := json.NewDecoder(resp.Body)
 		err = decoder.Decode(&t)
 		if err != nil {
-			metadata.Instance.CodeReadyServerIsUp = false
+			metadata.Instance.CheServerIsUp = false
 		} else {
-			metadata.Instance.CodeReadyServerIsUp = true
+			metadata.Instance.CheServerIsUp = true
 		}
 
 		Expect(err).NotTo(HaveOccurred())

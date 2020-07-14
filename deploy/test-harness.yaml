@@ -2,6 +2,7 @@
 version: 2.2.0-nightly
 osd: true
 flavor: che # The values can be che or codeready
+artifacts: "/tmp/artifacts"
 KubernetesImagePuller:
   Namespace: k8s-image-puller
   Image: quay.io/eclipse/kubernetes-image-puller:latest
