@@ -6,7 +6,7 @@ KubernetesImagePuller:
   Namespace: k8s-image-puller
   Image: quay.io/eclipse/kubernetes-image-puller:latest
   PullerImages: >
-    pluginbroker-artifacts-rhel8=quay.io/crw/pluginbroker-artifacts-rhel8@sha256:6adc05d286654e423525024fe11e0be3086d4b5595c6ef6abd3432d1fd36b07b;
+    pluginbroker-artifacts=quay.io/eclipse/che-plugin-metadata-broker:v3.2.0;
     che-theia=quay.io/eclipse/che-theia:next;
     java9-sidecar=quay.io/eclipse/che-sidecar-java:8-0cfbacb;
     che-sidecar-dependency-analytics=quay.io/eclipse/che-sidecar-dependency-analytics:0.0.13-a38cb0c;
