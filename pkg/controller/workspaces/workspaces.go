@@ -3,15 +3,14 @@ package workspaces
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/che-incubator/che-test-harness/cmd/che/config"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
 
-	"github.com/che-incubator/che-test-harness/pkg/client"
+	"github.com/che-incubator/che-test-harness/pkg/common/client"
+	"github.com/che-incubator/che-test-harness/pkg/common/logger"
 	"github.com/che-incubator/che-test-harness/pkg/controller"
-	"github.com/che-incubator/che-test-harness/pkg/controller/logger"
 	"github.com/che-incubator/che-test-harness/pkg/monitors/metadata"
 	"github.com/sirupsen/logrus"
 	"go.uber.org/zap"
@@ -49,7 +48,7 @@ func (w *WorkspacesController) RunWorkspace(workspaceDefinition []byte, workspac
 	keycloakTokenUrl := resource.Status.KeycloakURL
 	cheURL := resource.Status.CheURL
 
-	accessToken, err := w.KeycloakToken(keycloakTokenUrl + "/auth/realms/" + config.TestHarnessConfig.Flavor +"/protocol/openid-connect/token/")
+	accessToken, err := w.KeycloakToken(keycloakTokenUrl + "/auth/realms/che/protocol/openid-connect/token/")
 	if err != nil {
 		w.Logger.Panic("Error on retrieving token from keycloak.", zap.Error(err))
 	}
@@ -80,7 +79,7 @@ func (w *WorkspacesController) RunWorkspace(workspaceDefinition []byte, workspac
 // KeycloakToken return a JWT from keycloak
 func (w *WorkspacesController) KeycloakToken(keycloakTokenUrl string) (token string, err error) {
 	var result map[string]interface{}
-	cheFlavor := config.TestHarnessConfig.Flavor
+	cheFlavor := "che"
 
 	data := url.Values{}
 
@@ -132,13 +131,13 @@ func (w *WorkspacesController) CreateWorkspace(cheURL string, token string, work
 
 // StartWorkspace start a new workspace from a given workspace_id
 func (w *WorkspacesController) StartWorkspace(token string, cheURL string, workspaceID string) (err error) {
-	request, err := http.NewRequest("POST", cheURL+"/api/workspace/"+workspaceID+"/runtime", nil)
+	request, err := http.NewRequest("POST", cheURL + "/api/workspace/" + workspaceID + "/runtime", nil)
 
 	if err != nil {
 		logrus.Errorf("Failed to locate operator service account yaml, %s", err)
 	}
 
-	request.Header.Add("Authorization", "Bearer "+token)
+	request.Header.Add("Authorization", "Bearer " + token)
 	request.Header.Add("Content-Type", "application/json")
 
 	res, err := w.httpClient.Do(request)
@@ -152,7 +151,7 @@ func (w *WorkspacesController) StartWorkspace(token string, cheURL string, works
 
 // StartWorkspace delete a from a given workspace_id
 func (w *WorkspacesController) DeleteWorkspace(token string, cheURL string, workspaceID string) (err error) {
-	request, err := http.NewRequest("DELETE", cheURL+"/api/workspace/"+workspaceID+"/runtime", nil)
+	request, err := http.NewRequest("DELETE", cheURL + "/api/workspace/" + workspaceID + "/runtime", nil)
 
 	if err != nil {
 		logrus.Errorf("Failed to locate operator service account yaml, %s", err)
@@ -161,7 +160,7 @@ func (w *WorkspacesController) DeleteWorkspace(token string, cheURL string, work
 	request.Header.Add("Authorization", "Bearer "+token)
 	request.Header.Add("Content-Type", "application/json")
 
-	_, err = w.httpClient.Do(request)
+	_ , err = w.httpClient.Do(request)
 
 	return err
 }

@@ -1,3 +1,3 @@
 package docs
 
-var IS_NIGHTLY = true
+var VERSION = 1.0.0

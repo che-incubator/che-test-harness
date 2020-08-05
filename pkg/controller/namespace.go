@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"github.com/che-incubator/che-test-harness/cmd/che/config"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -11,7 +10,7 @@ import (
 func (c *TestHarnessController) CreateNamespace() error {
 	_, err := c.kubeClient.Kube().CoreV1().Namespaces().Create(&v1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: config.TestHarnessConfig.KubernetesImagePuller.Namespace,
+			Name: KubernetesImgPullerNS,
 		},
 	})
 	return err
@@ -21,6 +20,6 @@ func (c *TestHarnessController) CreateNamespace() error {
 func (c *TestHarnessController) DeleteNamespace() error {
 	opts := metav1.DeleteOptions{}
 
-	err := c.kubeClient.Kube().CoreV1().Namespaces().Delete(config.TestHarnessConfig.KubernetesImagePuller.Namespace, &opts)
+	err := c.kubeClient.Kube().CoreV1().Namespaces().Delete(KubernetesImgPullerNS, &opts)
 	return err
 }

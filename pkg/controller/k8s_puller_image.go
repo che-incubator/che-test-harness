@@ -1,16 +1,17 @@
 package controller
 
 import (
-	"github.com/che-incubator/che-test-harness/cmd/che/config"
 	"github.com/che-incubator/che-test-harness/pkg/deploy"
 )
 
 const (
 	KubernetesPullerImageLabel = "test=daemonset-test"
+	KubernetesImgPullerNS      = "k8s-image-puller"
 )
+
 // DeployKubernetesPullerImage Creates all configs and deploy kubernetes image puller in cluster
 func (c *TestHarnessController) DeployKubernetesPullerImage() error {
-	c.Logger.Info("Starting to deploy Kubernetes Puller deploy...")
+	c.Logger.Info("Starting to deploy Kubernetes Puller")
 
 	if err := c.CreateNamespace(); err != nil {
 		return err
@@ -41,7 +42,7 @@ func (c *TestHarnessController) DeployKubernetesPullerImage() error {
 		return err
 	}
 
-	_, err := c.WatchPodStartup(config.TestHarnessConfig.KubernetesImagePuller.Namespace, KubernetesPullerImageLabel, "")
+	_, err := c.WatchPodStartup(KubernetesImgPullerNS, KubernetesPullerImageLabel, "")
 
 	if err != nil {
 		return err
@@ -55,7 +56,7 @@ func (c *TestHarnessController) DeployKubernetesPullerImage() error {
 // CreateKubernetesPullerImageServiceAccount create a service account for kubernetes image puller
 func (c *TestHarnessController) CreateKubernetesPullerImageServiceAccount() error {
 	sa := deploy.PullerImageServiceAccount()
-	_, err := c.kubeClient.Kube().CoreV1().ServiceAccounts(config.TestHarnessConfig.KubernetesImagePuller.Namespace).Create(sa)
+	_, err := c.kubeClient.Kube().CoreV1().ServiceAccounts(KubernetesImgPullerNS).Create(sa)
 
 	return err
 }
@@ -63,22 +64,23 @@ func (c *TestHarnessController) CreateKubernetesPullerImageServiceAccount() erro
 // CreateKubernetesPullerImageRole create roles for kubernetes image puller
 func (c *TestHarnessController) CreateKubernetesPullerImageRole() error {
 	role := deploy.KubernetesPullerImageRole()
-	_, err := c.kubeClient.Kube().RbacV1().Roles(config.TestHarnessConfig.KubernetesImagePuller.Namespace).Create(role)
+	_, err := c.kubeClient.Kube().RbacV1().Roles(KubernetesImgPullerNS).Create(role)
 
 	return err
 }
+
 // CreateKubernetesPullerImageRoleBinding create roles binding for kubernetes image puller
 func (c *TestHarnessController) CreateKubernetesPullerImageRoleBinding() error {
 	roleBinding := deploy.KubernetesPullerImageRoleBinding()
-	_, err := c.kubeClient.Kube().RbacV1().RoleBindings(config.TestHarnessConfig.KubernetesImagePuller.Namespace).Create(roleBinding)
+	_, err := c.kubeClient.Kube().RbacV1().RoleBindings(KubernetesImgPullerNS).Create(roleBinding)
 
 	return err
 }
 
-// CreateKubernetesPullerImageConfigMap create config maps for kubernetes image puller
+// CreateKubernetesPullerImageConfigMap create secrets maps for kubernetes image puller
 func (c *TestHarnessController) CreateKubernetesPullerImageConfigMap() error {
 	cfg := deploy.KubernetesPullerImageConfigMap()
-	_, err := c.kubeClient.Kube().CoreV1().ConfigMaps(config.TestHarnessConfig.KubernetesImagePuller.Namespace).Create(cfg)
+	_, err := c.kubeClient.Kube().CoreV1().ConfigMaps(KubernetesImgPullerNS).Create(cfg)
 
 	return err
 }
@@ -86,7 +88,7 @@ func (c *TestHarnessController) CreateKubernetesPullerImageConfigMap() error {
 // CreateKubernetesPullerImageDeployment create deployment for kubernetes image puller
 func (c *TestHarnessController) CreateKubernetesPullerImageDeployment() error {
 	deployment := deploy.KubernetesPullerImageDeployment()
-	_, err := c.kubeClient.Kube().AppsV1().Deployments(config.TestHarnessConfig.KubernetesImagePuller.Namespace).Create(deployment)
+	_, err := c.kubeClient.Kube().AppsV1().Deployments(KubernetesImgPullerNS).Create(deployment)
 
 	return err
 }

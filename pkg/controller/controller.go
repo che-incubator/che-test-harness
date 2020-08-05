@@ -3,8 +3,8 @@ package controller
 import (
 	"sync"
 
-	"github.com/che-incubator/che-test-harness/pkg/client"
-	"github.com/che-incubator/che-test-harness/pkg/controller/logger"
+	"github.com/che-incubator/che-test-harness/pkg/common/client"
+	"github.com/che-incubator/che-test-harness/pkg/common/logger"
 	"github.com/eclipse/che-operator/pkg/controller/che"
 	"go.uber.org/zap"
 )

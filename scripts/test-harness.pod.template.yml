@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: crw-testsuite-__ID__
+  namespace: __NAMESPACE__
+spec:
+  volumes:
+    - name: test-harness-secrets
+      secret:
+        secretName: test-harness-secrets
+    - name: test-run-results
+    - name: kubeconfig
+      configMap:
+        name: crw-testsuite-kubeconfig
+  containers:
+    # container containing the tests
+    - name: test
+      image: quay.io/flacatus/crw-osde2e
+      imagePullPolicy: Always
+      env:
+        - name: CODEREADY_NAMESPACE
+          value: __CODEREADY_NAMESPACE__
+        - name: KUBECONFIG
+          value: /tmp/kubeconfig/secrets
+      volumeMounts:
+        - name: test-run-results
+          mountPath: /test-run-results
+        - name: kubeconfig
+          mountPath: /tmp/kubeconfig
+        - name: test-harness-secrets
+          mountPath: /etc/test-harness-secrets
+          readOnly: true
+    # the container used to download the test results
+    - name: download
+      image: eeacms/rsync
+      volumeMounts:
+        - name: test-run-results
+          mountPath: /test-run-results
+      command: ["sh"]
+      args:
+        [
+          "-c",
+          "while true; if [[ -f /tmp/done ]]; then exit 0; fi; do sleep 1; done",
+        ]
+  restartPolicy: Never
