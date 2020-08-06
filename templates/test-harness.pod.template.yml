@@ -18,7 +18,7 @@ spec:
       command:
         - /che-test-harness
       name: "che-test-harness"
-      image: "quay.io/flacatus/che-test-harness"
+      image: "<__REPLACE__>"
       imagePullPolicy: "Always"
       env:
         - name: CHE_NAMESPACE

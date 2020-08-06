@@ -34,11 +34,6 @@ function deployTestHArness() {
     ${TEST_HARNESS_ROOT}/bin/che-test-harness --che-namespace=${OPERATOR_NAMESPACE} --metrics-files=${METRICS_FILES} --artifacts-dir=${ARTIFACTS_DIR}
 }
 
-# Function to get all events from Che deployments
-getCheClusterEvents() {
-  mkdir -p ${ARTIFACTS_DIR}/che-events
-}
-
 function run() {
     init
     installCheOperator
