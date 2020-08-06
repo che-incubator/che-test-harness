@@ -30,6 +30,11 @@ function installCheOperator() {
 }
 
 function deployTestHArness() {
+    # For some reason go on PROW force usage vendor folder
+    # This workaround is here until we don't figure out cause
+    go mod tidy
+    go mod vendor
+
     make build
     ${TEST_HARNESS_ROOT}/bin/che-test-harness --che-namespace=${OPERATOR_NAMESPACE} --metrics-files=${METRICS_FILES} --artifacts-dir=${ARTIFACTS_DIR}
 }
@@ -38,7 +43,6 @@ function run() {
     init
     installCheOperator
     deployTestHArness
-    getCheClusterEvents
 }
 
 echo ${BUILD_ID}
