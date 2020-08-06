@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: crw-testsuite-__ID__
+  namespace: __NAMESPACE__
+spec:
+  volumes:
+    - name: test-run-results
+    - name: kubeconfig
+      configMap:
+        name: crw-testsuite-kubeconfig
+  containers:
+    - args:
+        - --che-namespace
+        - $(CHE_NAMESPACE)
+        - --artifacts-dir
+        - $(ARTIFACTS)
+      command:
+        - /che-test-harness
+      name: "che-test-harness"
+      image: "<__REPLACE__>"
+      imagePullPolicy: "Always"
+      env:
+        - name: CHE_NAMESPACE
+          value: __CHE_NAMESPACE__
+        - name: ARTIFACTS
+          value: "/test-run-results"
+        - name: KUBECONFIG
+          value: "/tmp/kubeconfig/secrets"
+      volumeMounts:
+        - name: test-run-results
+          mountPath: /test-run-results
+        - name: kubeconfig
+          mountPath: /tmp/kubeconfig
+    # the container used to download the test results
+    - name: download
+      image: eeacms/rsync
+      volumeMounts:
+        - name: test-run-results
+          mountPath: /test-run-results
+      command: ["sh"]
+      args:
+        [
+          "-c",
+          "while true; if [[ -f /tmp/done ]]; then exit 0; fi; do sleep 1; done",
+        ]
+  restartPolicy: Never

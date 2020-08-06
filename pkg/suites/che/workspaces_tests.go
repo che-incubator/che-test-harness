@@ -1,16 +1,21 @@
-package tests
+package che
 
 import (
-	"github.com/che-incubator/che-test-harness/pkg/client"
+	"github.com/che-incubator/che-test-harness/pkg/common/client"
+	"github.com/che-incubator/che-test-harness/pkg/common/logger"
 	"github.com/che-incubator/che-test-harness/pkg/controller/workspaces"
 	"github.com/onsi/ginkgo"
 	"go.uber.org/zap"
 	"io/ioutil"
 	"path/filepath"
-	"time"
 )
 
-var _ =  KubeDescribe( "[Workspaces]" , func() {
+var _ =  ginkgo.Describe( "[Workspaces]" , func() {
+	var Logger, err = logger.ZapLogger()
+	if err != nil {
+		panic("Failed to create zap logger")
+	}
+
 	ginkgo.It("Start simple Workspace", func() {
 		workspaceStack := "simple"
 		httpClient, err := client.NewHttpClient()
@@ -32,13 +37,13 @@ var _ =  KubeDescribe( "[Workspaces]" , func() {
 		_ = ctrl.RunWorkspace(file, workspaceStack)
 	})
 
-	ginkgo.It("Start Python 3.7 Workspace", func() {
-		workspaceStack := "python"
+	ginkgo.It("Start NodeJS Workspace", func() {
+		workspaceStack := "nodejs"
 		httpClient, err := client.NewHttpClient()
 
 		ctrl := workspaces.NewWorkspaceController(httpClient)
 
-		fileLocation, err := filepath.Abs("samples/workspaces/workspace_python37.json")
+		fileLocation, err := filepath.Abs("samples/workspaces/workspace_nodejs.json")
 
 		if err != nil {
 			Logger.Panic("Failed to get workspace devFile from location ", zap.Error(err))
@@ -48,7 +53,7 @@ var _ =  KubeDescribe( "[Workspaces]" , func() {
 		if err != nil {
 			Logger.Panic("Failed to read workspace devfile ", zap.Error(err))
 		}
-		Logger.Info("Starting a new workspace with python 3.7")
+		Logger.Info("Starting a new NodeJS workspace")
 
 		_ = ctrl.RunWorkspace(file, workspaceStack)
 	})
@@ -57,7 +62,6 @@ var _ =  KubeDescribe( "[Workspaces]" , func() {
 		workspaceStack := "java-maven"
 		httpClient, err := client.NewHttpClient()
 
-		time.Sleep(10 *time.Second)
 		ctrl := workspaces.NewWorkspaceController(httpClient)
 
 		fileLocation, err := filepath.Abs("samples/workspaces/workspace_java_maven.json")
@@ -70,7 +74,7 @@ var _ =  KubeDescribe( "[Workspaces]" , func() {
 		if err != nil {
 			Logger.Panic("Failed to read workspace devfile ", zap.Error(err))
 		}
-		Logger.Info("Starting a new workspace java-maven")
+		Logger.Info("Starting a new Java Maven workspace")
 		_ = ctrl.RunWorkspace(file, workspaceStack)
 	})
 })

@@ -1,7 +1,8 @@
 #!/bin/bash
 
-export CODEREADY_NAMESPACE="che"
+export METRICS_FILES="/etc/secrets"
 export ARTIFACTS_DIR="/tmp/artifacts"
+export OPERATOR_NAMESPACE="che"
 
 function init() {
   # shellcheck disable=SC2155
@@ -17,27 +18,20 @@ function init() {
 }
 
 function installCheOperator() {
-    oc create namespace ${CODEREADY_NAMESPACE}
-    oc apply -f https://raw.githubusercontent.com/eclipse/che-operator/master/deploy/service_account.yaml -n ${CODEREADY_NAMESPACE}
+    oc create namespace ${OPERATOR_NAMESPACE}
+    oc apply -f https://raw.githubusercontent.com/eclipse/che-operator/master/deploy/service_account.yaml -n ${OPERATOR_NAMESPACE}
     oc apply -f https://raw.githubusercontent.com/eclipse/che-operator/master/deploy/crds/org_v1_che_crd.yaml
-    oc apply -f https://raw.githubusercontent.com/eclipse/che-operator/master/deploy/role.yaml -n ${CODEREADY_NAMESPACE}
-    oc apply -f https://raw.githubusercontent.com/eclipse/che-operator/master/deploy/role_binding.yaml -n ${CODEREADY_NAMESPACE}
+    oc apply -f https://raw.githubusercontent.com/eclipse/che-operator/master/deploy/role.yaml -n ${OPERATOR_NAMESPACE}
+    oc apply -f https://raw.githubusercontent.com/eclipse/che-operator/master/deploy/role_binding.yaml -n ${OPERATOR_NAMESPACE}
     oc apply -f https://raw.githubusercontent.com/eclipse/che-operator/master/deploy/cluster_role.yaml
     oc apply -f https://raw.githubusercontent.com/eclipse/che-operator/master/deploy/cluster_role_binding.yaml
     oc apply -f https://raw.githubusercontent.com/eclipse/che-operator/master/deploy/role_binding_oauth.yaml
-    oc apply -f https://raw.githubusercontent.com/eclipse/che-operator/master/deploy/operator.yaml -n ${CODEREADY_NAMESPACE}
+    oc apply -f https://raw.githubusercontent.com/eclipse/che-operator/master/deploy/operator.yaml -n ${OPERATOR_NAMESPACE}
 }
 
 function deployTestHArness() {
     make build
-    ${TEST_HARNESS_ROOT}/bin/che-test-harness
-}
-
-# Function to get all events from Che deployments
-getCheClusterEvents() {
-  mkdir -p ${ARTIFACTS_DIR}/che-events
-  cd ${ARTIFACTS_DIR}/che-logs
-  oc get events -n ${CODEREADY_NAMESPACE} | tee get_events.log
+    ${TEST_HARNESS_ROOT}/bin/che-test-harness --che-namespace=${OPERATOR_NAMESPACE} --metrics-files=${METRICS_FILES} --artifacts-dir=${ARTIFACTS_DIR}
 }
 
 function run() {
@@ -46,5 +40,8 @@ function run() {
     deployTestHArness
     getCheClusterEvents
 }
+
+echo ${BUILD_ID}
+echo ${BUILD_NUMBER}
 
 run

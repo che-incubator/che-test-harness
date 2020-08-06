@@ -1,50 +1,58 @@
 package operator_tests
 
 import (
-	"github.com/che-incubator/che-test-harness/cmd/che/config"
-	"os"
-	"path/filepath"
-	"testing"
-
-	"github.com/che-incubator/che-test-harness/cmd/che/util"
-	"github.com/che-incubator/che-test-harness/pkg/client"
+	"flag"
+	"fmt"
+	"github.com/che-incubator/che-test-harness/pkg/common"
+	"github.com/che-incubator/che-test-harness/pkg/common/aws"
+	"github.com/che-incubator/che-test-harness/pkg/common/client"
+	"github.com/che-incubator/che-test-harness/pkg/common/logger"
+	"github.com/che-incubator/che-test-harness/pkg/common/prometheus"
+	"github.com/che-incubator/che-test-harness/pkg/common/reporter"
 	"github.com/che-incubator/che-test-harness/pkg/controller"
-	log "github.com/che-incubator/che-test-harness/pkg/controller/logger"
-	"go.uber.org/zap"
-
 	"github.com/che-incubator/che-test-harness/pkg/monitors/metadata"
-	_ "github.com/che-incubator/che-test-harness/pkg/tests"
+	_ "github.com/che-incubator/che-test-harness/pkg/suites/che"
 	"github.com/onsi/ginkgo"
 	"github.com/onsi/ginkgo/reporters"
 	"github.com/onsi/gomega"
+	"github.com/spf13/viper"
+	"go.uber.org/zap"
+	"io/ioutil"
+	"path/filepath"
+	"testing"
 )
 
 //Create Constant file
 const (
-	jUnitOutputFilename  = "junit-che-operator.xml"
-	addonMetadataName    = "addon-metadata.json"
-	DebugSummaryOutput   = "debug_tests.json"
+	jUnitOutputFilename = "junit-che-operator.xml"
+	addonMetadataName   = "addon-metadata.json"
+	DebugSummaryOutput  = "debug_tests.json"
 )
 
-var Logger = &log.Zap
+// Create an instance to save all our data there
+type Configs struct {
+	artifactsDir string
+	metricsFiles string
+}
+
+var CfgInstance = Configs{}
+
+// Start to register flags
+func init()  {
+	registerCheFlags(flag.CommandLine)
+}
 
 // SynchronizedBeforeSuite blocks are primarily meant to solve the problem of setting up the custom resources for Eclipse Che
 var _ = ginkgo.SynchronizedBeforeSuite(func() []byte {
 	// Generate kubernetes client go to access cluster
+	var Logger, err = logger.ZapLogger()
+	if err != nil {
+		panic("Failed to create zap logger")
+	}
 	k8sClient, err := client.NewK8sClient()
 	if err != nil {
-		panic(err)
+		panic("Failed to create k8s client go")
 	}
-
-	// Check if Eclipse Che operator is installed on OSD namespace or external namespace
-	start := util.OsdSetupNameSpace()
-	if !start {
-		// In case if Eclipse Che Operator not found in any namespace specified the software will crush
-		os.Exit(1)
-	}
-
-	//!TODO: Try to create a specific function to call all <ginkgo suite> configuration.
-	Logger.Info("Starting to setup objects before run ginkgo suite")
 
 	// Initialize Kubernetes client to create resources in a giving namespace
 	ctrl := controller.NewTestHarnessController(k8sClient)
@@ -57,6 +65,27 @@ var _ = ginkgo.SynchronizedBeforeSuite(func() []byte {
 }, func(data []byte) {})
 
 var _ = ginkgo.SynchronizedAfterSuite(func() {
+	var Logger, _ = logger.ZapLogger()
+
+	_ = metadata.Instance.WriteToJSON(filepath.Join(CfgInstance.artifactsDir, addonMetadataName))
+
+	newMetrics := prometheus.NewMetrics()
+	if newMetrics == nil {
+		Logger.Panic("Error getting new prometheus provider")
+	}
+
+	// Generate a new prometheus files from
+	prometheusFilename, err := newMetrics.WritePrometheusFile(CfgInstance.artifactsDir)
+	if err != nil {
+		Logger.Panic("Error while writing prometheus prometheus", zap.Error(err))
+	}
+
+	if len(CfgInstance.metricsFiles) > 0 {
+		if err := sendDataToS3(prometheusFilename); err != nil {
+			Logger.Panic("Error sending data to aws s3", zap.Error(err))
+		}
+	}
+
 	k8sClient, err := client.NewK8sClient()
 	if err != nil {
 		panic(err)
@@ -77,27 +106,42 @@ var _ = ginkgo.SynchronizedAfterSuite(func() {
 }, func() {})
 
 func TestHarnessChe(t *testing.T) {
-	// Deserialize test harness configuration and assign to a struct
-	if err := config.ParseConfigurationFile(); err != nil {
-		Logger.Panic("Failed to get Che Test Harness Configuration. Please Check your configuration file: deploy/test-harness.yaml")
-	}
-
-	// configure zap logging for, Zap Logger create a file <*.log> where is possible
-	//to find information about addon execution.
-	Logger, _ := log.ZapLogger()
-
 	gomega.RegisterFailHandler(ginkgo.Fail)
-	Logger.Info("Creating ginkgo reporter for Test Harness: Junit and Debug Detail reporter")
 
 	var r []ginkgo.Reporter
-	r = append(r, reporters.NewJUnitReporter(filepath.Join(config.TestHarnessConfig.Artifacts, jUnitOutputFilename)))
-	r = append(r, util.NewDetailsReporterFile(filepath.Join(config.TestHarnessConfig.Artifacts, DebugSummaryOutput)))
+	r = append(r, reporters.NewJUnitReporter(filepath.Join(CfgInstance.artifactsDir, jUnitOutputFilename)))
+	r = append(r, reporter.NewDetailsReporterFile(filepath.Join(CfgInstance.artifactsDir, DebugSummaryOutput)))
 
-	Logger.Info("Running Eclipse Che e2e tests...")
 	ginkgo.RunSpecsWithDefaultAndCustomReporters(t, "Eclipse Che Test Harness", r)
 
-	err := metadata.Instance.WriteToJSON(filepath.Join(config.TestHarnessConfig.Artifacts, addonMetadataName))
-	if err != nil {
-		Logger.Panic("error while writing metadata")
+}
+
+// Register All flags used by test harness
+func registerCheFlags(flags *flag.FlagSet) {
+	flags.StringVar(&CfgInstance.artifactsDir, "artifacts-dir", "/tmp/artifacts", "If is specified test harness will save all reports in the given directory, if not will save artifacts in the current directory. Default dir is /tmp/artifacts")
+	flags.StringVar(&CfgInstance.metricsFiles, "metrics-files", "", "If it is set che test harness start to send the data to AWS S3. You should have valid secrets in the files")
+	flags.StringVar(&metadata.Namespace.Name, "che-namespace", "eclipse-che", "Namespace where che-operator was deployed before launch tests. Default namespace is `eclipse-che`")
+}
+
+// Generate a Prometheus file from json metadata and connect with aws s3 and put the data into buckets
+func sendDataToS3(prometheusFilename string) error {
+	if err := common.LoadConfigs(CfgInstance.metricsFiles); err != nil {
+		return fmt.Errorf("error loading initial state: %v", err)
 	}
+
+	if err := uploadFileToMetricsBucket(filepath.Join(CfgInstance.artifactsDir, prometheusFilename)); err != nil {
+		return fmt.Errorf("error while uploading prometheus metrics file: %v", err)
+	}
+
+	return nil
+}
+
+// uploadFileToMetricsBucket uploads the given file (with absolute path) to the prometheus S3 bucket "incoming" directory.
+func uploadFileToMetricsBucket(filename string) error {
+	data, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return err
+	}
+
+	return aws.WriteToS3(aws.CreateS3URL(viper.GetString("prometheus-datahub"), "prometheus-datahub", filepath.Base(filename)), data)
 }

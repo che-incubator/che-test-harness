@@ -3,18 +3,14 @@ package workspaces
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/che-incubator/che-test-harness/cmd/che/config"
+	"github.com/che-incubator/che-test-harness/pkg/common/client"
+	"github.com/che-incubator/che-test-harness/pkg/common/logger"
+	"github.com/che-incubator/che-test-harness/pkg/controller"
+	"github.com/che-incubator/che-test-harness/pkg/monitors/metadata"
+	"go.uber.org/zap"
 	"net/http"
 	"net/url"
 	"strings"
-	"time"
-
-	"github.com/che-incubator/che-test-harness/pkg/client"
-	"github.com/che-incubator/che-test-harness/pkg/controller"
-	"github.com/che-incubator/che-test-harness/pkg/controller/logger"
-	"github.com/che-incubator/che-test-harness/pkg/monitors/metadata"
-	"github.com/sirupsen/logrus"
-	"go.uber.org/zap"
 )
 
 // WorkspacesController useful to add logger and http client.
@@ -49,7 +45,7 @@ func (w *WorkspacesController) RunWorkspace(workspaceDefinition []byte, workspac
 	keycloakTokenUrl := resource.Status.KeycloakURL
 	cheURL := resource.Status.CheURL
 
-	accessToken, err := w.KeycloakToken(keycloakTokenUrl + "/auth/realms/" + config.TestHarnessConfig.Flavor +"/protocol/openid-connect/token/")
+	accessToken, err := w.KeycloakToken(keycloakTokenUrl + "/auth/realms/che/protocol/openid-connect/token/")
 	if err != nil {
 		w.Logger.Panic("Error on retrieving token from keycloak.", zap.Error(err))
 	}
@@ -63,11 +59,14 @@ func (w *WorkspacesController) RunWorkspace(workspaceDefinition []byte, workspac
 		w.Logger.Panic("Failed to start workspace", zap.Error(err))
 	}
 
-	time.Sleep(40 * time.Second)
 	workspaceLabel := "che.workspace_id=" + workspaceID
 
 	if _, err := ctrl.WatchPodStartup(metadata.Namespace.Name, workspaceLabel, workspaceStack); err != nil {
 		w.Logger.Panic("Failed to start workspace", zap.Error(err))
+	}
+
+	if err := w.StopWorkspace(accessToken, cheURL, workspaceID); err != nil {
+		w.Logger.Panic("Failed to delete workspace", zap.Error(err))
 	}
 
 	if err := w.DeleteWorkspace(accessToken, cheURL, workspaceID); err != nil {
@@ -80,7 +79,7 @@ func (w *WorkspacesController) RunWorkspace(workspaceDefinition []byte, workspac
 // KeycloakToken return a JWT from keycloak
 func (w *WorkspacesController) KeycloakToken(keycloakTokenUrl string) (token string, err error) {
 	var result map[string]interface{}
-	cheFlavor := config.TestHarnessConfig.Flavor
+	cheFlavor := "che"
 
 	data := url.Values{}
 
@@ -132,13 +131,13 @@ func (w *WorkspacesController) CreateWorkspace(cheURL string, token string, work
 
 // StartWorkspace start a new workspace from a given workspace_id
 func (w *WorkspacesController) StartWorkspace(token string, cheURL string, workspaceID string) (err error) {
-	request, err := http.NewRequest("POST", cheURL+"/api/workspace/"+workspaceID+"/runtime", nil)
+	request, err := http.NewRequest("POST", cheURL + "/api/workspace/" + workspaceID + "/runtime", nil)
 
 	if err != nil {
-		logrus.Errorf("Failed to locate operator service account yaml, %s", err)
+		w.Logger.Error("Failed to start Workspace", zap.Error(err))
 	}
 
-	request.Header.Add("Authorization", "Bearer "+token)
+	request.Header.Add("Authorization", "Bearer " + token)
 	request.Header.Add("Content-Type", "application/json")
 
 	res, err := w.httpClient.Do(request)
@@ -150,18 +149,34 @@ func (w *WorkspacesController) StartWorkspace(token string, cheURL string, works
 	return err
 }
 
-// StartWorkspace delete a from a given workspace_id
-func (w *WorkspacesController) DeleteWorkspace(token string, cheURL string, workspaceID string) (err error) {
-	request, err := http.NewRequest("DELETE", cheURL+"/api/workspace/"+workspaceID+"/runtime", nil)
+// StopWorkspace stop a workspace from a given workspace_id
+func (w *WorkspacesController) StopWorkspace(token string, cheURL string, workspaceID string) (err error) {
+	request, err := http.NewRequest("DELETE", cheURL + "/api/workspace/" + workspaceID + "/runtime", nil)
 
 	if err != nil {
-		logrus.Errorf("Failed to locate operator service account yaml, %s", err)
+		w.Logger.Error("Failed to stop workspace", zap.Error(err))
 	}
 
 	request.Header.Add("Authorization", "Bearer "+token)
 	request.Header.Add("Content-Type", "application/json")
 
-	_, err = w.httpClient.Do(request)
+	_ , err = w.httpClient.Do(request)
+
+	return err
+}
+
+// DeleteWorkspace delete a workspace from a given workspace_id
+func (w *WorkspacesController) DeleteWorkspace(token string, cheURL string, workspaceID string) (err error) {
+	request, err := http.NewRequest("DELETE", cheURL + "/api/workspace/" + workspaceID, nil)
+
+	if err != nil {
+		w.Logger.Error("Failed to delete workspace", zap.Error(err))
+	}
+
+	request.Header.Add("Authorization", "Bearer "+token)
+	request.Header.Add("Content-Type", "application/json")
+
+	_ , err = w.httpClient.Do(request)
 
 	return err
 }
