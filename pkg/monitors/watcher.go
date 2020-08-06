@@ -2,8 +2,7 @@ package monitors
 
 import (
 	"context"
-	"github.com/che-incubator/che-test-harness/cmd/che/config"
-	"github.com/che-incubator/che-test-harness/pkg/controller/logger"
+	"github.com/che-incubator/che-test-harness/pkg/common/logger"
 	"github.com/che-incubator/che-test-harness/pkg/monitors/metadata"
 	"go.uber.org/zap"
 	"strings"
@@ -61,8 +60,6 @@ func NewPodStartupDataMonitor(c clientset.Interface) *PodStartupLatencyDataMonit
 }
 
 // Descibe all pod events in given namespace for Eclipse Che
-// !TODO: Create a simple custom controller using workqueue https://itnext.io/how-to-create-a-kubernetes-custom-controller-using-client-go-f36a7a7536cc
-// https://insujang.github.io/2020-02-13/programming-kubernetes-crd/
 func (pm *PodStartupLatencyDataMonitor) DescribeEvents(stopCh chan struct{}) error {
 	_, controller := cache.NewInformer(&cache.ListWatch{
 		ListFunc: func(options metav1.ListOptions) (runtime.Object, error) {
@@ -203,7 +200,7 @@ func (pm *PodStartupLatencyDataMonitor) updateMetric(key string, data *PodStartu
 			metadata.Instance.ChePodTime.DevFileUpTime= startupTime
 		}
 
-		if strings.Contains(key, config.TestHarnessConfig.Flavor) && ! strings.Contains(key, "che-operator") {
+		if strings.Contains(key, "che") && ! strings.Contains(key, "che-operator") {
 			metadata.Instance.ChePodTime.ServerUpTime= startupTime
 		}
 	}

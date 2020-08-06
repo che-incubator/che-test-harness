@@ -1,7 +1,6 @@
 package deploy
 
 import (
-	"github.com/che-incubator/che-test-harness/cmd/che/config"
 	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -39,7 +38,7 @@ func KubernetesPullerImageDeployment() *appsv1.Deployment{
 					Containers: []v1.Container{
 						{
 							Name: "kubernetes-image-puller",
-							Image: config.TestHarnessConfig.KubernetesImagePuller.Image,
+							Image: K8sIMGPullerContainer,
 							ImagePullPolicy: "IfNotPresent",
 							EnvFrom: []v1.EnvFromSource{
 								{

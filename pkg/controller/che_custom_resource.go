@@ -2,7 +2,6 @@ package controller
 
 import (
 	"errors"
-	"github.com/che-incubator/che-test-harness/cmd/che/config"
 	"time"
 
 	"github.com/che-incubator/che-test-harness/pkg/deploy"
@@ -14,6 +13,7 @@ import (
 
 const (
 	CheKind = "checlusters"
+	crName  = "eclipse-che"
 )
 
 // GetCustomResource make an api request to K8s API to get Che Cluster
@@ -24,7 +24,7 @@ func (c *TestHarnessController) GetCustomResource() (*orgv1.CheCluster, error) {
 		Get().
 		Namespace(metadata.Namespace.Name).
 		Resource(CheKind).
-		Name(config.TestHarnessConfig.Flavor).
+		Name(crName).
 		Do().
 		Into(&result)
 
@@ -44,7 +44,7 @@ func (c *TestHarnessController) CreateCustomResource() (err error) {
 		Post().
 		Namespace(metadata.Namespace.Name).
 		Resource(CheKind).
-		Name(config.TestHarnessConfig.Flavor).
+		Name(crName).
 		Body(cheCluster).
 		Do().
 		Into(&result)
@@ -92,7 +92,7 @@ func (c TestHarnessController) DeleteCustomResource() (err error) {
 		Delete().
 		Namespace(metadata.Namespace.Name).
 		Resource(CheKind).
-		Name(config.TestHarnessConfig.Flavor).
+		Name(crName).
 		Do().
 		Error()
 
