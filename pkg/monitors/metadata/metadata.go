@@ -20,7 +20,7 @@ type metadata struct {
 
 	ChePodTime PodTimes `json:"pods-up-times, int"`
 
-	WorkspacesMeasureTime WorkspacesMeasureTime `json:"workspaces-measure-time, int"`
+	WorkspacesMeasureTime WorkspacesMeasureTime `json:"workspaces-up-time, int"`
 
 	//Returns true or false depending if che server is UP
 	CheServerIsUp bool `json:"che_apiserver_is_up, bool"`
@@ -35,7 +35,7 @@ type PodTimes struct {
 }
 
 type WorkspacesMeasureTime struct {
-	PythonWorkspace float64 `json:"python_workspace, float64"`
+	SimpleWorkspace float64 `json:"simple_workspace, float64"`
 	JavaMavenWorkspace float64 `json:"java_maven_workspace, float64"`
 }
 
@@ -74,8 +74,8 @@ func WriteWorkspaceMeasureTimesToMetadata(pod *v1.Pod, workspaceStack string) (e
 		timeDiff := GetMeasureTime(pod)
 
 		switch workspaceStack {
-		case "python":
-			Instance.WorkspacesMeasureTime.PythonWorkspace = timeDiff
+		case "simple":
+			Instance.WorkspacesMeasureTime.SimpleWorkspace = timeDiff
 		case "java-maven" :
 			Instance.WorkspacesMeasureTime.JavaMavenWorkspace = timeDiff
 		}

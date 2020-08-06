@@ -14,8 +14,8 @@ func KubernetesPullerImageConfigMap() *v1.ConfigMap {
 	"jboss-eap-7=registry.redhat.io/jboss-eap-7/eap73-openjdk8-openshift-rhel7@sha256:f355c9673c09f98c223e73c64ab424dc9f5f756fdeb74a4d33f387411fa27738;"+
 	"che-plugin-artifacts-broker=quay.io/eclipse/che-plugin-artifacts-broker:v3.2.0;"+
 	"che-theia-endpoint-runtime-binary=quay.io/eclipse/che-theia-endpoint-runtime-binary:next;"+
-	"che-sidecar-python=quay.io/eclipse/che-sidecar-python:3.7.3-8f39348;" +
-	"che-python=quay.io/eclipse/che-python-3.7:nightly"
+	"che-sidecar-python=quay.io/eclipse/che-sidecar-node:10-0cb5d78;" +
+	"che-python=quay.io/eclipse/che-nodejs10-ubi:nightly"
 
 	return &v1.ConfigMap{
 		TypeMeta: metav1.TypeMeta{

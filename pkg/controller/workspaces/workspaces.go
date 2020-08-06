@@ -12,7 +12,6 @@ import (
 	"github.com/che-incubator/che-test-harness/pkg/common/logger"
 	"github.com/che-incubator/che-test-harness/pkg/controller"
 	"github.com/che-incubator/che-test-harness/pkg/monitors/metadata"
-	"github.com/sirupsen/logrus"
 	"go.uber.org/zap"
 )
 
@@ -67,6 +66,10 @@ func (w *WorkspacesController) RunWorkspace(workspaceDefinition []byte, workspac
 
 	if _, err := ctrl.WatchPodStartup(metadata.Namespace.Name, workspaceLabel, workspaceStack); err != nil {
 		w.Logger.Panic("Failed to start workspace", zap.Error(err))
+	}
+
+	if err := w.StopWorkspace(accessToken, cheURL, workspaceID); err != nil {
+		w.Logger.Panic("Failed to delete workspace", zap.Error(err))
 	}
 
 	if err := w.DeleteWorkspace(accessToken, cheURL, workspaceID); err != nil {
@@ -134,7 +137,7 @@ func (w *WorkspacesController) StartWorkspace(token string, cheURL string, works
 	request, err := http.NewRequest("POST", cheURL + "/api/workspace/" + workspaceID + "/runtime", nil)
 
 	if err != nil {
-		logrus.Errorf("Failed to locate operator service account yaml, %s", err)
+		w.Logger.Error("Failed to start Workspace", zap.Error(err))
 	}
 
 	request.Header.Add("Authorization", "Bearer " + token)
@@ -150,11 +153,27 @@ func (w *WorkspacesController) StartWorkspace(token string, cheURL string, works
 }
 
 // StartWorkspace delete a from a given workspace_id
-func (w *WorkspacesController) DeleteWorkspace(token string, cheURL string, workspaceID string) (err error) {
+func (w *WorkspacesController) StopWorkspace(token string, cheURL string, workspaceID string) (err error) {
 	request, err := http.NewRequest("DELETE", cheURL + "/api/workspace/" + workspaceID + "/runtime", nil)
 
 	if err != nil {
-		logrus.Errorf("Failed to locate operator service account yaml, %s", err)
+		w.Logger.Error("Failed to stop workspace", zap.Error(err))
+	}
+
+	request.Header.Add("Authorization", "Bearer "+token)
+	request.Header.Add("Content-Type", "application/json")
+
+	_ , err = w.httpClient.Do(request)
+
+	return err
+}
+
+// StartWorkspace delete a from a given workspace_id
+func (w *WorkspacesController) DeleteWorkspace(token string, cheURL string, workspaceID string) (err error) {
+	request, err := http.NewRequest("DELETE", cheURL + "/api/workspace/" + workspaceID, nil)
+
+	if err != nil {
+		w.Logger.Error("Failed to delete workspace", zap.Error(err))
 	}
 
 	request.Header.Add("Authorization", "Bearer "+token)

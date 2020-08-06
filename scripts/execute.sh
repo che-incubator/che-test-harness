@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -ex
 
 CRW_TEST_NAMESPACE=$1
 REPORT_DIR=$2
@@ -19,8 +19,8 @@ if [ "${CRW_OPERATOR_NAMESPACE}" == "" ]; then
 fi
 
 ID=$(date +%s)
-OPENSHIFT_API_URL=$(oc secrets view --minify -o jsonpath='{.clusters[*].cluster.server}')
-OPENSHIFT_API_TOKEN=$(oc whoami -t)
+OPENSHIFT_API_URL=https://api.ci-ln-g31fd6k-f76d1.origin-ci-int-gce.dev.openshift.com:6443
+OPENSHIFT_API_TOKEN=gOfIwwUYIej3t29JRHM4fFYKVd9PCviHOc7L-oUHds0
 
 TMP_POD_YML=$(mktemp)
 TMP_KUBECONFIG_YML=$(mktemp)
@@ -40,7 +40,7 @@ oc create configmap -n ${CRW_TEST_NAMESPACE} crw-testsuite-kubeconfig \
 cat test-harness.pod.template.yml |
     sed -e "s#__ID__#${ID}#g" |
     sed -e "s#__NAMESPACE__#${CRW_TEST_NAMESPACE}#g" |
-    sed -e "s#__CODEREADY_NAMESPACE__#${CRW_TEST_NAMESPACE}#g" |
+    sed -e "s#__CHE_NAMESPACE__#${CRW_TEST_NAMESPACE}#g" |
     cat >${TMP_POD_YML}
 
 cat ${TMP_POD_YML}
@@ -59,7 +59,7 @@ while true; do
 done
 
 # wait for the test to finish
-oc logs -n ${CRW_TEST_NAMESPACE} crw-testsuite-${ID} -c test -f
+oc logs -n ${CRW_TEST_NAMESPACE} crw-testsuite-${ID} -c che-test-harness -f
 
 # just to sleep
 sleep 3

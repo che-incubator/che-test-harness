@@ -5,31 +5,33 @@ metadata:
   namespace: __NAMESPACE__
 spec:
   volumes:
-    - name: test-harness-secrets
-      secret:
-        secretName: test-harness-secrets
     - name: test-run-results
     - name: kubeconfig
       configMap:
         name: crw-testsuite-kubeconfig
   containers:
-    # container containing the tests
-    - name: test
-      image: quay.io/flacatus/crw-osde2e
-      imagePullPolicy: Always
+    - args:
+        - --che-namespace
+        - $(CHE_NAMESPACE)
+        - --artifacts-dir
+        - $(ARTIFACTS)
+      command:
+        - /che-test-harness
+      name: "che-test-harness"
+      image: "quay.io/flacatus/che-test-harness"
+      imagePullPolicy: "Always"
       env:
-        - name: CODEREADY_NAMESPACE
-          value: __CODEREADY_NAMESPACE__
+        - name: CHE_NAMESPACE
+          value: __CHE_NAMESPACE__
+        - name: ARTIFACTS
+          value: "/test-run-results"
         - name: KUBECONFIG
-          value: /tmp/kubeconfig/secrets
+          value: "/tmp/kubeconfig/secrets"
       volumeMounts:
         - name: test-run-results
           mountPath: /test-run-results
         - name: kubeconfig
           mountPath: /tmp/kubeconfig
-        - name: test-harness-secrets
-          mountPath: /etc/test-harness-secrets
-          readOnly: true
     # the container used to download the test results
     - name: download
       image: eeacms/rsync

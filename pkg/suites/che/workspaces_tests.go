@@ -38,13 +38,13 @@ var _ =  ginkgo.Describe( "[Workspaces]" , func() {
 		_ = ctrl.RunWorkspace(file, workspaceStack)
 	})
 
-	ginkgo.It("Start Python 3.7 Workspace", func() {
-		workspaceStack := "python"
+	ginkgo.It("Start NodeJS Workspace", func() {
+		workspaceStack := "nodejs"
 		httpClient, err := client.NewHttpClient()
 
 		ctrl := workspaces.NewWorkspaceController(httpClient)
 
-		fileLocation, err := filepath.Abs("samples/workspaces/workspace_python37.json")
+		fileLocation, err := filepath.Abs("samples/workspaces/workspace_quarkus.json")
 
 		if err != nil {
 			Logger.Panic("Failed to get workspace devFile from location ", zap.Error(err))
@@ -54,7 +54,7 @@ var _ =  ginkgo.Describe( "[Workspaces]" , func() {
 		if err != nil {
 			Logger.Panic("Failed to read workspace devfile ", zap.Error(err))
 		}
-		Logger.Info("Starting a new workspace with python 3.7")
+		Logger.Info("Starting a new NodeJS workspace")
 
 		_ = ctrl.RunWorkspace(file, workspaceStack)
 	})
@@ -76,7 +76,7 @@ var _ =  ginkgo.Describe( "[Workspaces]" , func() {
 		if err != nil {
 			Logger.Panic("Failed to read workspace devfile ", zap.Error(err))
 		}
-		Logger.Info("Starting a new workspace java-maven")
+		Logger.Info("Starting a new Java Maven workspace")
 		_ = ctrl.RunWorkspace(file, workspaceStack)
 	})
 })
