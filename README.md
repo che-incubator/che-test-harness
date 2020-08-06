@@ -23,7 +23,7 @@ Install dependencies:
 $ go mod tidy
 # Copy the dependencies to vendor folder
 $ go mod vendor
-# Create che-test-harness binary
+# Create che-test-harness binary in bin folder. Please add the binary to the path or just execute ./bin/che-test-harness
 $ make build
 ```
 
