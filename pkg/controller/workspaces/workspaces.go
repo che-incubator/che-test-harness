@@ -3,16 +3,14 @@ package workspaces
 import (
 	"bytes"
 	"encoding/json"
-	"net/http"
-	"net/url"
-	"strings"
-	"time"
-
 	"github.com/che-incubator/che-test-harness/pkg/common/client"
 	"github.com/che-incubator/che-test-harness/pkg/common/logger"
 	"github.com/che-incubator/che-test-harness/pkg/controller"
 	"github.com/che-incubator/che-test-harness/pkg/monitors/metadata"
 	"go.uber.org/zap"
+	"net/http"
+	"net/url"
+	"strings"
 )
 
 // WorkspacesController useful to add logger and http client.
@@ -61,7 +59,6 @@ func (w *WorkspacesController) RunWorkspace(workspaceDefinition []byte, workspac
 		w.Logger.Panic("Failed to start workspace", zap.Error(err))
 	}
 
-	time.Sleep(40 * time.Second)
 	workspaceLabel := "che.workspace_id=" + workspaceID
 
 	if _, err := ctrl.WatchPodStartup(metadata.Namespace.Name, workspaceLabel, workspaceStack); err != nil {
@@ -152,7 +149,7 @@ func (w *WorkspacesController) StartWorkspace(token string, cheURL string, works
 	return err
 }
 
-// StartWorkspace delete a from a given workspace_id
+// StopWorkspace stop a workspace from a given workspace_id
 func (w *WorkspacesController) StopWorkspace(token string, cheURL string, workspaceID string) (err error) {
 	request, err := http.NewRequest("DELETE", cheURL + "/api/workspace/" + workspaceID + "/runtime", nil)
 
@@ -168,7 +165,7 @@ func (w *WorkspacesController) StopWorkspace(token string, cheURL string, worksp
 	return err
 }
 
-// StartWorkspace delete a from a given workspace_id
+// DeleteWorkspace delete a workspace from a given workspace_id
 func (w *WorkspacesController) DeleteWorkspace(token string, cheURL string, workspaceID string) (err error) {
 	request, err := http.NewRequest("DELETE", cheURL + "/api/workspace/" + workspaceID, nil)
 

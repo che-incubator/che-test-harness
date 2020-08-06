@@ -8,7 +8,6 @@ import (
 	"go.uber.org/zap"
 	"io/ioutil"
 	"path/filepath"
-	"time"
 )
 
 var _ =  ginkgo.Describe( "[Workspaces]" , func() {
@@ -63,7 +62,6 @@ var _ =  ginkgo.Describe( "[Workspaces]" , func() {
 		workspaceStack := "java-maven"
 		httpClient, err := client.NewHttpClient()
 
-		time.Sleep(10 *time.Second)
 		ctrl := workspaces.NewWorkspaceController(httpClient)
 
 		fileLocation, err := filepath.Abs("samples/workspaces/workspace_java_maven.json")

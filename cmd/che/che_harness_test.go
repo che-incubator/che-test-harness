@@ -119,7 +119,7 @@ func TestHarnessChe(t *testing.T) {
 // Register All flags used by test harness
 func registerCheFlags(flags *flag.FlagSet) {
 	flags.StringVar(&CfgInstance.artifactsDir, "artifacts-dir", "/tmp/artifacts", "If is specified test harness will save all reports in the given directory, if not will save artifacts in the current directory. Default dir is /tmp/artifacts")
-	flags.StringVar(&CfgInstance.metricsFiles, "metrics-files", "", "If it is set che test harness start to send the data to AWS S3 . You should have valid secrets in the files")
+	flags.StringVar(&CfgInstance.metricsFiles, "metrics-files", "", "If it is set che test harness start to send the data to AWS S3. You should have valid secrets in the files")
 	flags.StringVar(&metadata.Namespace.Name, "che-namespace", "eclipse-che", "Namespace where che-operator was deployed before launch tests. Default namespace is `eclipse-che`")
 }
 
@@ -130,7 +130,7 @@ func sendDataToS3(prometheusFilename string) error {
 	}
 
 	if err := uploadFileToMetricsBucket(filepath.Join(CfgInstance.artifactsDir, prometheusFilename)); err != nil {
-		return fmt.Errorf("error while uploading prometheus prometheus: %v", err)
+		return fmt.Errorf("error while uploading prometheus metrics file: %v", err)
 	}
 
 	return nil
