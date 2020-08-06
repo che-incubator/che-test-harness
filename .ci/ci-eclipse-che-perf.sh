@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export METRICS_FILES="/etc/secrets"
+export METRICS_FILES="/secrets/test-harness-secrets"
 export ARTIFACTS_DIR="/tmp/artifacts"
 export OPERATOR_NAMESPACE="che"
 
