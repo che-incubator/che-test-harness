@@ -18,4 +18,5 @@
 .idea/
 build/
 bin/
+vendor/
 **/test-run-results
