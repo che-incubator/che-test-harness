@@ -177,6 +177,6 @@ func (w *WorkspacesController) DeleteWorkspace(token string, cheURL string, work
 	request.Header.Add("Content-Type", "application/json")
 
 	_ , err = w.httpClient.Do(request)
-
+	time.Sleep(80 * time.Second)
 	return err
 }
