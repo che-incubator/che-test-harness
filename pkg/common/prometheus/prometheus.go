@@ -31,7 +31,7 @@ func NewMetrics() *Metrics {
 		prometheus.GaugeOpts{
 			Name: cheMetricName,
 		},
-		[]string{"ci_provider", "metadata_name", "test_id"},
+		[]string{"ci_provider", "metadata_name", "test_id", "job_id"},
 	)
 	metricRegistry.MustRegister(cheGatherer)
 
@@ -93,7 +93,8 @@ func (m *Metrics) jsonToPrometheusOutput(gatherer *prometheus.GaugeVec, jsonOutp
 			if floatValue, err := strconv.ParseFloat(stringValue, 64); err == nil {
 					gatherer.WithLabelValues("openshift-ci",
 						metadataName,
-						"che-test-harness").Add(floatValue)
+						"che-test-harness",
+						os.Getenv("BUILD_ID")).Add(floatValue)
 			}
 		}
 	}

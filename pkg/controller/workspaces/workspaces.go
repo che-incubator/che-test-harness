@@ -10,8 +10,8 @@ import (
 	"go.uber.org/zap"
 	"net/http"
 	"net/url"
-	"time"
 	"strings"
+	"time"
 )
 
 // WorkspacesController useful to add logger and http client.
@@ -126,6 +126,7 @@ func (w *WorkspacesController) CreateWorkspace(cheURL string, token string, work
 	if len(workspaceID) == 0 {
 		w.Logger.Panic("Workspace ID is empty.The tests will fail.")
 	}
+	time.Sleep(1 * time.Minute)
 
 	return workspaceID, err
 }
@@ -147,6 +148,8 @@ func (w *WorkspacesController) StartWorkspace(token string, cheURL string, works
 		return err
 	}
 
+	time.Sleep(1 * time.Minute)
+
 	return err
 }
 
@@ -162,7 +165,7 @@ func (w *WorkspacesController) StopWorkspace(token string, cheURL string, worksp
 	request.Header.Add("Content-Type", "application/json")
 
 	_ , err = w.httpClient.Do(request)
-
+	time.Sleep(1 * time.Minute)
 	return err
 }
 
@@ -178,6 +181,8 @@ func (w *WorkspacesController) DeleteWorkspace(token string, cheURL string, work
 	request.Header.Add("Content-Type", "application/json")
 
 	_ , err = w.httpClient.Do(request)
-	time.Sleep(80 * time.Second)
+
+	time.Sleep(1 * time.Minute)
+
 	return err
 }
