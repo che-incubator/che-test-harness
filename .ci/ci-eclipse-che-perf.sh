@@ -49,4 +49,4 @@ echo ${BUILD_ID}
 echo ${BUILD_NUMBER}
 
 run
-oc get events -n ${OPERATOR_NAMESPACE
+oc get events -n ${OPERATOR_NAMESPACE}
