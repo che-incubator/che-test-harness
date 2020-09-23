@@ -50,3 +50,4 @@ echo ${BUILD_NUMBER}
 
 run
 oc get events -n ${OPERATOR_NAMESPACE}
+####
