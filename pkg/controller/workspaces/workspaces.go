@@ -48,20 +48,15 @@ func (w *WorkspacesController) RunWorkspace(workspaceDefinition []byte, workspac
 		w.Logger.Panic("Failed to get Custom Resource.", zap.Error(err))
 	}
 
-	keycloakTokenUrl := resource.Status.KeycloakURL
+	keycloakTokenUrl := resource.Status.KeycloakURL + "/auth/realms/che/protocol/openid-connect/token/"
 	cheURL := resource.Status.CheURL
 
-	accessToken, err := w.KeycloakToken(keycloakTokenUrl + "/auth/realms/che/protocol/openid-connect/token/")
-	if err != nil {
-		w.Logger.Panic("Error on retrieving token from keycloak.", zap.Error(err))
-	}
-
-	workspaceID, err = w.CreateWorkspace(cheURL, accessToken, workspaceDefinition)
+	workspaceID, err = w.CreateWorkspace(cheURL, keycloakTokenUrl, workspaceDefinition)
 	if err != nil {
 		w.Logger.Panic("Error on create workspace.", zap.Error(err))
 	}
 
-	if err := w.StartWorkspace(accessToken, cheURL, workspaceID); err != nil {
+	if err := w.StartWorkspace(keycloakTokenUrl, cheURL, workspaceID); err != nil {
 		w.Logger.Panic("Failed to start workspace", zap.Error(err))
 	}
 
@@ -71,11 +66,11 @@ func (w *WorkspacesController) RunWorkspace(workspaceDefinition []byte, workspac
 		w.Logger.Panic("Failed to start workspace", zap.Error(err))
 	}
 
-	if err := w.StopWorkspace(accessToken, cheURL, workspaceID); err != nil {
+	if err := w.StopWorkspace(keycloakTokenUrl, cheURL, workspaceID); err != nil {
 		w.Logger.Panic("Failed to delete workspace", zap.Error(err))
 	}
 
-	if err := w.DeleteWorkspace(accessToken, cheURL, workspaceID); err != nil {
+	if err := w.DeleteWorkspace(keycloakTokenUrl, cheURL, workspaceID); err != nil {
 		w.Logger.Panic("Failed to delete workspace", zap.Error(err))
 	}
 
@@ -167,8 +162,6 @@ func (w *WorkspacesController) StartWorkspace(keycloakUrl string, cheURL string,
 	request.Header.Add("Content-Type", "application/json")
 
 	res, err := w.httpClient.Do(request)
-
-	fmt.Println()
 
 	if res.Status != "200" && err != nil {
 		return err
