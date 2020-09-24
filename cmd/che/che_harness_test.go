@@ -121,6 +121,8 @@ func registerCheFlags(flags *flag.FlagSet) {
 	flags.StringVar(&CfgInstance.artifactsDir, "artifacts-dir", "/tmp/artifacts", "If is specified test harness will save all reports in the given directory, if not will save artifacts in the current directory. Default dir is /tmp/artifacts")
 	flags.StringVar(&CfgInstance.metricsFiles, "metrics-files", "", "If it is set che test harness start to send the data to AWS S3. You should have valid secrets in the files")
 	flags.StringVar(&metadata.Namespace.Name, "che-namespace", "eclipse-che", "Namespace where che-operator was deployed before launch tests. Default namespace is `eclipse-che`")
+	flags.StringVar(&metadata.User.Username, "username", "admin", "Username of user to log in. Default username is `admin`")
+	flags.StringVar(&metadata.User.Password, "password", "admin", "Password of user to log in. Default password is `admin`")
 }
 
 // Generate a Prometheus file from json metadata and connect with aws s3 and put the data into buckets
