@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -247,7 +246,7 @@ func (w *WorkspacesController) WaitWorkspaceStatusViaApi(keycloakUrl string, che
 	err = json.NewDecoder(response.Body).Decode(&result)
 
 	timeouted := false
-	fmt.Println("Waiting for workspace to be " + desiredStatus + ". Tick is set to 5 sec.")
+	w.Logger.Info("Waiting for workspace to be " + desiredStatus + ". Tick is set to 5 sec.")
 	for status != desiredStatus {
 		request := w.getRequest(keycloakUrl, cheURL, workspaceID)
 		response, err := w.httpClient.Do(request)
@@ -270,10 +269,10 @@ func (w *WorkspacesController) WaitWorkspaceStatusViaApi(keycloakUrl string, che
 
 		status = result["status"].(string)
 		endTime = time.Now()
-		fmt.Println("Status: ", status, "Wanted: ", desiredStatus, " Time taken: ", endTime.Sub(startTime))
+		w.Logger.Info("Status: " + status + " Wanted: " + desiredStatus + " Time taken: " + endTime.Sub(startTime).String())
 
 		if endTime.Sub(startTime) > time.Duration(timeoutInSeconds)*(time.Second) {
-			fmt.Println("Timeouting from after: ", endTime.Sub(startTime), " from timeout: ", timeoutInSeconds)
+			w.Logger.Info("Timeouting from after: " + string(endTime.Sub(startTime)) + " from timeout: " + string(timeoutInSeconds))
 			timeouted = true
 			break
 		}
@@ -286,7 +285,7 @@ func (w *WorkspacesController) WaitWorkspaceStatusViaApi(keycloakUrl string, che
 		w.Logger.Error("Waiting for workspace to change status timeouted ", zap.Error(timeoutError))
 		Expect(timeoutError).NotTo(HaveOccurred())
 	} else {
-		fmt.Println("Workspace become ", status, " after ", endTime.Sub(startTime))
+		w.Logger.Info("Workspace become " + status + " after " + endTime.Sub(startTime).String())
 	}
 
 	return err

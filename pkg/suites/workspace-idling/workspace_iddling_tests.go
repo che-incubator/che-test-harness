@@ -1,7 +1,6 @@
 package workspace_idling
 
 import (
-	"fmt"
 	"io/ioutil"
 	"path/filepath"
 	"strconv"
@@ -24,7 +23,7 @@ var _ = ginkgo.Describe("[Workspace Idling]", func() {
 	var workspaceId string
 
 	ginkgo.It("Create workspace", func() {
-		fmt.Println("--- Creating workspace ---")
+		Logger.Info("Creating workspace")
 		fileLocation, err := filepath.Abs("samples/workspaces/workspace_java_maven.json")
 
 		if err != nil {
@@ -43,7 +42,7 @@ var _ = ginkgo.Describe("[Workspace Idling]", func() {
 	})
 
 	ginkgo.It("Start workspace", func() {
-		fmt.Println("--- Starting workspace ---")
+		Logger.Info("Starting workspace ")
 		if err := ctrl.StartWorkspace(idling_defaults.ConfigInstance.KeycloakUrl, idling_defaults.ConfigInstance.CheUrl, workspaceId); err != nil {
 			Logger.Panic("Failed to start workspace", zap.Error(err))
 		}
@@ -54,7 +53,7 @@ var _ = ginkgo.Describe("[Workspace Idling]", func() {
 	})
 
 	ginkgo.It("Wait workspace to be idled", func() {
-		fmt.Println("--- Waiting for workspace to be idled after " + strconv.Itoa(idling_defaults.ConfigInstance.IdlingTimeoutMinutes) + "+5 minutes ---")
+		Logger.Info("Waiting for workspace to be idled after " + strconv.Itoa(idling_defaults.ConfigInstance.IdlingTimeoutMinutes) + "+5 minutes ")
 		idlingTimeout := (idling_defaults.ConfigInstance.IdlingTimeoutMinutes + 5) * 60
 		if err := ctrl.WaitWorkspaceStatusViaApi(idling_defaults.ConfigInstance.KeycloakUrl, idling_defaults.ConfigInstance.CheUrl, workspaceId, "STOPPED", idlingTimeout); err != nil {
 			Logger.Panic("Waiting for workspace id "+workspaceId+" to be idled failed ", zap.Error(err))
@@ -62,7 +61,7 @@ var _ = ginkgo.Describe("[Workspace Idling]", func() {
 	})
 
 	ginkgo.It("Stop workspace", func() {
-		fmt.Println("--- Stopping worksapce ---")
+		Logger.Info("Stopping worksapce")
 		if err := ctrl.StopWorkspace(idling_defaults.ConfigInstance.KeycloakUrl, idling_defaults.ConfigInstance.CheUrl, workspaceId); err != nil {
 			Logger.Panic("Failed to stop workspace", zap.Error(err))
 		}
@@ -73,7 +72,7 @@ var _ = ginkgo.Describe("[Workspace Idling]", func() {
 	})
 
 	ginkgo.It("Delete workspace", func() {
-		fmt.Println("--- Deleting workspace ---")
+		Logger.Info("Deleting workspace")
 		if err := ctrl.DeleteWorkspace(idling_defaults.ConfigInstance.KeycloakUrl, idling_defaults.ConfigInstance.CheUrl, workspaceId); err != nil {
 			Logger.Panic("Failed to delete workspace", zap.Error(err))
 		}
