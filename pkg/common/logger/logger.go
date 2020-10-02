@@ -12,7 +12,7 @@ type Log struct {
 //Logger is the singleton of Zap Logger(Log struct)
 var Zap = Log{}
 
-func ZapLogger() (*zap.Logger, error)  {
+func ZapLogger() (*zap.Logger, error) {
 	logger, err := initZap("debug")
 
 	defer logger.Sync()
@@ -62,7 +62,7 @@ func initZap(logLevel string) (*zap.Logger, error) {
 			Initial:    100,
 			Thereafter: 100,
 		},
-		Encoding:         "json",
+		Encoding:         "console",
 		EncoderConfig:    zapEncoderConfig,
 		OutputPaths:      []string{"stderr"},
 		ErrorOutputPaths: []string{"stderr"},

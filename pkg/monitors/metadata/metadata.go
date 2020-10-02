@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	v1 "k8s.io/api/core/v1"
 	"os"
+
+	v1 "k8s.io/api/core/v1"
 )
 
 // metadata houses metadata to be written out to the additional-metadata.json
@@ -31,29 +32,35 @@ type PodTimes struct {
 	KeycloakUpTime  float64 `json:"keycloak-up-time, float64"`
 	DevFileUpTime   float64 `json:"devfile-up-time, float64"`
 	PluginRegUpTime float64 `json:"plugins-up-time, float64"`
-	ServerUpTime float64 `json:"server-up-time, float64"`
+	ServerUpTime    float64 `json:"server-up-time, float64"`
 }
 
 type WorkspacesMeasureTime struct {
-	SimpleWorkspace float64 `json:"simple_workspace, float64"`
-	NodejsWorkspace float64 `json:"nodejs_workspace, float64"`
+	SimpleWorkspace    float64 `json:"simple_workspace, float64"`
+	NodejsWorkspace    float64 `json:"nodejs_workspace, float64"`
 	JavaMavenWorkspace float64 `json:"java_maven_workspace, float64"`
 }
 
 type ChePodsInfo struct {
-	Name        string             `json:"name, string"`
-	DockerImage string             `json:"docker_image, string"`
-	Status      v1.PodPhase        `json:"status, string"`
-	Labels      map[string]string  `json:"labels, string"`
+	Name        string            `json:"name, string"`
+	DockerImage string            `json:"docker_image, string"`
+	Status      v1.PodPhase       `json:"status, string"`
+	Labels      map[string]string `json:"labels, string"`
 }
 
 type CHE_NAMESPACE struct {
 	Name string
-	UP bool
+	UP   bool
+}
+
+type UserData struct {
+	Username string
+	Password string
 }
 
 var Namespace = CHE_NAMESPACE{}
-var Instance  = metadata{}
+var Instance = metadata{}
+var User = UserData{}
 
 // WriteToJSON will marshall the metadata struct a	nd write it into the given file.
 func (m *metadata) WriteToJSON(outputFilename string) (err error) {
@@ -79,21 +86,21 @@ func WriteWorkspaceMeasureTimesToMetadata(pod *v1.Pod, workspaceStack string) (e
 			Instance.WorkspacesMeasureTime.SimpleWorkspace = timeDiff
 		case "nodejs":
 			Instance.WorkspacesMeasureTime.NodejsWorkspace = timeDiff
-		case "java-maven" :
+		case "java-maven":
 			Instance.WorkspacesMeasureTime.JavaMavenWorkspace = timeDiff
 		}
 
 	} else {
 		return fmt.Errorf("Error on check workspace Pod Timers Pod didn't start.")
 	}
-	
-	return 
+
+	return
 }
 
 // Get Measure time for Workspaces
 // !TODO get with more specific events
 func GetMeasureTime(pod *v1.Pod) (time float64) {
-	for _, p := range pod.Status.Conditions   {
+	for _, p := range pod.Status.Conditions {
 		if p.Type == "ContainersReady" {
 			startupTime := p.LastTransitionTime.Time.Sub(pod.Status.StartTime.Time).Seconds()
 

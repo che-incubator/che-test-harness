@@ -36,7 +36,7 @@ function deployTestHArness() {
     go mod vendor
 
     make build
-    ${TEST_HARNESS_ROOT}/bin/che-test-harness --che-namespace=${OPERATOR_NAMESPACE} --metrics-files=${METRICS_FILES} --artifacts-dir=${ARTIFACTS_DIR}
+    "${TEST_HARNESS_ROOT}"/bin/che-test-harness --che-namespace=${OPERATOR_NAMESPACE} --metrics-files=${METRICS_FILES} --artifacts-dir=${ARTIFACTS_DIR}
 }
 
 function run() {
@@ -45,8 +45,8 @@ function run() {
     deployTestHArness
 }
 
-echo ${BUILD_ID}
-echo ${BUILD_NUMBER}
+echo "${BUILD_ID}"
+echo "${BUILD_NUMBER}"
 
 run
 oc get events -n ${OPERATOR_NAMESPACE}

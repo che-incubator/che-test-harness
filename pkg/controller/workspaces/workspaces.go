@@ -3,15 +3,19 @@ package workspaces
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
+	"net/http"
+	"net/url"
+	"strings"
+	"time"
+
 	"github.com/che-incubator/che-test-harness/pkg/common/client"
 	"github.com/che-incubator/che-test-harness/pkg/common/logger"
 	"github.com/che-incubator/che-test-harness/pkg/controller"
 	"github.com/che-incubator/che-test-harness/pkg/monitors/metadata"
 	"go.uber.org/zap"
-	"net/http"
-	"net/url"
-	"strings"
-	"time"
+
+	. "github.com/onsi/gomega"
 )
 
 // WorkspacesController useful to add logger and http client.
@@ -43,20 +47,15 @@ func (w *WorkspacesController) RunWorkspace(workspaceDefinition []byte, workspac
 		w.Logger.Panic("Failed to get Custom Resource.", zap.Error(err))
 	}
 
-	keycloakTokenUrl := resource.Status.KeycloakURL
+	keycloakTokenUrl := resource.Status.KeycloakURL + "/auth/realms/che/protocol/openid-connect/token/"
 	cheURL := resource.Status.CheURL
 
-	accessToken, err := w.KeycloakToken(keycloakTokenUrl + "/auth/realms/che/protocol/openid-connect/token/")
-	if err != nil {
-		w.Logger.Panic("Error on retrieving token from keycloak.", zap.Error(err))
-	}
-
-	workspaceID, err = w.CreateWorkspace(cheURL, accessToken, workspaceDefinition)
+	workspaceID, err = w.CreateWorkspace(cheURL, keycloakTokenUrl, workspaceDefinition)
 	if err != nil {
 		w.Logger.Panic("Error on create workspace.", zap.Error(err))
 	}
 
-	if err := w.StartWorkspace(accessToken, cheURL, workspaceID); err != nil {
+	if err := w.StartWorkspace(keycloakTokenUrl, cheURL, workspaceID); err != nil {
 		w.Logger.Panic("Failed to start workspace", zap.Error(err))
 	}
 
@@ -66,11 +65,11 @@ func (w *WorkspacesController) RunWorkspace(workspaceDefinition []byte, workspac
 		w.Logger.Panic("Failed to start workspace", zap.Error(err))
 	}
 
-	if err := w.StopWorkspace(accessToken, cheURL, workspaceID); err != nil {
+	if err := w.StopWorkspace(keycloakTokenUrl, cheURL, workspaceID); err != nil {
 		w.Logger.Panic("Failed to delete workspace", zap.Error(err))
 	}
 
-	if err := w.DeleteWorkspace(accessToken, cheURL, workspaceID); err != nil {
+	if err := w.DeleteWorkspace(keycloakTokenUrl, cheURL, workspaceID); err != nil {
 		w.Logger.Panic("Failed to delete workspace", zap.Error(err))
 	}
 
@@ -84,9 +83,9 @@ func (w *WorkspacesController) KeycloakToken(keycloakTokenUrl string) (token str
 
 	data := url.Values{}
 
-	data.Set("client_id", cheFlavor + "-public")
-	data.Set("username", "admin")
-	data.Set("password", "admin")
+	data.Set("client_id", cheFlavor+"-public")
+	data.Set("username", metadata.User.Username)
+	data.Set("password", metadata.User.Password)
 	data.Set("grant_type", "password")
 
 	r, err := http.NewRequest("POST", keycloakTokenUrl, strings.NewReader(data.Encode()))
@@ -106,10 +105,21 @@ func (w *WorkspacesController) KeycloakToken(keycloakTokenUrl string) (token str
 }
 
 // CreateWorkspace create an workspace using token and given devFile
-func (w *WorkspacesController) CreateWorkspace(cheURL string, token string, workspaceDefinition []byte) (workspaceID string, err error) {
+func (w *WorkspacesController) CreateWorkspace(cheURL string, keycloakUrl string, workspaceDefinition []byte) (workspaceID string, err error) {
 	var workspace map[string]interface{}
+	var request *http.Request
 
-	request, _ := http.NewRequest("POST", cheURL+"/api/workspace/devfile?infrastructure-namespace=" + metadata.Namespace.Name + "&namespace=admin", bytes.NewBuffer(workspaceDefinition))
+	if metadata.Namespace.Name == "" {
+		request, _ = http.NewRequest("POST", cheURL+"/api/workspace/devfile?", bytes.NewBuffer(workspaceDefinition))
+	} else {
+		request, _ = http.NewRequest("POST", cheURL+"/api/workspace/devfile?infrastructure-namespace="+metadata.Namespace.Name+"&namespace=admin", bytes.NewBuffer(workspaceDefinition))
+	}
+
+	var token string
+	if token, err = w.KeycloakToken(keycloakUrl); err != nil {
+		w.Logger.Error("Failed to get user token ", zap.Error(err))
+	}
+
 	request.Header.Add("Authorization", "Bearer "+token)
 	request.Header.Add("Content-Type", "application/json")
 
@@ -121,25 +131,33 @@ func (w *WorkspacesController) CreateWorkspace(cheURL string, token string, work
 
 	_ = json.NewDecoder(response.Body).Decode(&workspace)
 
+	if response.StatusCode == 409 {
+		w.Logger.Panic("Can not create workspace, workspace probably exists.")
+	}
+
 	workspaceID = workspace["id"].(string)
 
 	if len(workspaceID) == 0 {
 		w.Logger.Panic("Workspace ID is empty.The tests will fail.")
 	}
-	time.Sleep(1 * time.Minute)
 
 	return workspaceID, err
 }
 
 // StartWorkspace start a new workspace from a given workspace_id
-func (w *WorkspacesController) StartWorkspace(token string, cheURL string, workspaceID string) (err error) {
-	request, err := http.NewRequest("POST", cheURL + "/api/workspace/" + workspaceID + "/runtime", nil)
+func (w *WorkspacesController) StartWorkspace(keycloakUrl string, cheURL string, workspaceID string) (err error) {
+	request, err := http.NewRequest("POST", cheURL+"/api/workspace/"+workspaceID+"/runtime", nil)
 
 	if err != nil {
 		w.Logger.Error("Failed to start Workspace", zap.Error(err))
 	}
 
-	request.Header.Add("Authorization", "Bearer " + token)
+	var token string
+	if token, err = w.KeycloakToken(keycloakUrl); err != nil {
+		w.Logger.Error("Failed to get user token ", zap.Error(err))
+	}
+
+	request.Header.Add("Authorization", "Bearer "+token)
 	request.Header.Add("Content-Type", "application/json")
 
 	res, err := w.httpClient.Do(request)
@@ -148,41 +166,127 @@ func (w *WorkspacesController) StartWorkspace(token string, cheURL string, works
 		return err
 	}
 
-	time.Sleep(1 * time.Minute)
-
 	return err
 }
 
 // StopWorkspace stop a workspace from a given workspace_id
-func (w *WorkspacesController) StopWorkspace(token string, cheURL string, workspaceID string) (err error) {
-	request, err := http.NewRequest("DELETE", cheURL + "/api/workspace/" + workspaceID + "/runtime", nil)
+func (w *WorkspacesController) StopWorkspace(keycloakUrl string, cheURL string, workspaceID string) (err error) {
+	request, err := http.NewRequest("DELETE", cheURL+"/api/workspace/"+workspaceID+"/runtime", nil)
 
 	if err != nil {
 		w.Logger.Error("Failed to stop workspace", zap.Error(err))
 	}
 
-	request.Header.Add("Authorization", "Bearer "+token)
-	request.Header.Add("Content-Type", "application/json")
-
-	_ , err = w.httpClient.Do(request)
-	time.Sleep(1 * time.Minute)
-	return err
-}
-
-// DeleteWorkspace delete a workspace from a given workspace_id
-func (w *WorkspacesController) DeleteWorkspace(token string, cheURL string, workspaceID string) (err error) {
-	request, err := http.NewRequest("DELETE", cheURL + "/api/workspace/" + workspaceID, nil)
-
-	if err != nil {
-		w.Logger.Error("Failed to delete workspace", zap.Error(err))
+	var token string
+	if token, err = w.KeycloakToken(keycloakUrl); err != nil {
+		w.Logger.Error("Failed to get user token ", zap.Error(err))
 	}
 
 	request.Header.Add("Authorization", "Bearer "+token)
 	request.Header.Add("Content-Type", "application/json")
 
-	_ , err = w.httpClient.Do(request)
+	_, err = w.httpClient.Do(request)
 
-	time.Sleep(1 * time.Minute)
+	return err
+}
+
+// DeleteWorkspace delete a workspace from a given workspace_id
+func (w *WorkspacesController) DeleteWorkspace(keycloakUrl string, cheURL string, workspaceID string) (err error) {
+	request, err := http.NewRequest("DELETE", cheURL+"/api/workspace/"+workspaceID, nil)
+
+	if err != nil {
+		w.Logger.Error("Failed to delete workspace", zap.Error(err))
+	}
+
+	var token string
+	if token, err = w.KeycloakToken(keycloakUrl); err != nil {
+		w.Logger.Error("Failed to get user token ", zap.Error(err))
+	}
+
+	request.Header.Add("Authorization", "Bearer "+token)
+	request.Header.Add("Content-Type", "application/json")
+
+	_, err = w.httpClient.Do(request)
+
+	return err
+}
+
+// creating get requested with always fresh user token
+func (w *WorkspacesController) getRequest(keycloakUrl string, cheUrl string, workspaceID string) *http.Request {
+	request, err := http.NewRequest("GET", cheUrl+"/api/workspace/"+workspaceID, nil)
+
+	if err != nil {
+		w.Logger.Error("Failed to create request for obtaining workspace status ", zap.Error(err))
+	}
+
+	var token string
+	if token, err = w.KeycloakToken(keycloakUrl); err != nil {
+		w.Logger.Error("Failed to get user token ", zap.Error(err))
+	}
+
+	request.Header.Add("Authorization", "Bearer "+token)
+	return request
+}
+
+// WaitWorkspaceStatusViaApi waits for workspace to have desired status in specified timeout
+func (w *WorkspacesController) WaitWorkspaceStatusViaApi(keycloakUrl string, cheURL string, workspaceID string, desiredStatus string, timeoutInSeconds int) (err error) {
+	var result map[string]interface{}
+
+	startTime, endTime := time.Now(), time.Now()
+
+	request := w.getRequest(keycloakUrl, cheURL, workspaceID)
+
+	status := "undefined"
+	response, err := w.httpClient.Do(request)
+
+	if err != nil {
+		w.Logger.Error("Failed to obtain workspace status ", zap.Error(err))
+	}
+
+	err = json.NewDecoder(response.Body).Decode(&result)
+
+	timeouted := false
+	w.Logger.Info("Waiting for workspace to be " + desiredStatus + ". Tick is set to 5 sec.")
+	for status != desiredStatus {
+		request := w.getRequest(keycloakUrl, cheURL, workspaceID)
+		response, err := w.httpClient.Do(request)
+
+		if err != nil {
+			w.Logger.Error("Failed to obtain workspace status ", zap.Error(err))
+		}
+
+		err = json.NewDecoder(response.Body).Decode(&result)
+
+		if result["status"] == nil {
+			if desiredStatus == "" {
+				break
+			} else {
+				statusError := errors.New("Can not obtain workspace status. Status is empty.")
+				w.Logger.Error("Can not obtain workspace status ", zap.Error(statusError))
+				Expect(statusError).NotTo(HaveOccurred())
+			}
+		}
+
+		status = result["status"].(string)
+		endTime = time.Now()
+		w.Logger.Info("Status: " + status + " Wanted: " + desiredStatus + " Time taken: " + endTime.Sub(startTime).String())
+
+		if endTime.Sub(startTime) > time.Duration(timeoutInSeconds)*(time.Second) {
+			w.Logger.Info("Timeouting from after: " + string(endTime.Sub(startTime)) + " from timeout: " + string(timeoutInSeconds))
+			timeouted = true
+			break
+		}
+
+		time.Sleep(5 * time.Second)
+	}
+
+	if timeouted {
+		timeoutError := errors.New("Waiting for workspace to get to the state " + desiredStatus + " failed, workspace is " + status)
+		w.Logger.Error("Waiting for workspace to change status timeouted ", zap.Error(timeoutError))
+		Expect(timeoutError).NotTo(HaveOccurred())
+	} else {
+		w.Logger.Info("Workspace become " + status + " after " + endTime.Sub(startTime).String())
+	}
 
 	return err
 }
