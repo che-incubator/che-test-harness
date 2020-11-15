@@ -38,7 +38,8 @@ function deployTestHArness() {
     go mod vendor
 
     make  build-performance
-    /home/flacatus/WORKSPACE/incubator/che-test-harness/bin/che-performance-test --che-namespace=${OPERATOR_NAMESPACE}
+    "${TEST_HARNESS_ROOT}"/bin/che-test-harness --che-namespace=${OPERATOR_NAMESPACE} --metrics-files=${METRICS_FILES} --artifacts-dir=${ARTIFACTS_DIR}
+
 }
 
 function run() {
