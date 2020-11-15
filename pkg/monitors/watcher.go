@@ -275,9 +275,9 @@ func workspaceContainersTimes(pml *podMilestones) []testContext.Containers {
 	containerInstance := testContext.Containers{}
 	var containers []testContext.Containers
 	for _, c := range pml.containers {
-		if c.started && !strings.Contains(c.name, "che-plugin-artifacts-broker") {
+		if c.started && c.pulling {
 			containerInstance.ContainerName = c.name
-			containerInstance.StartupLatency = pml.readyAt.Sub(c.startedAt).Seconds()
+			containerInstance.StartupLatency = c.startedAt.Sub(c.pullingAt).Seconds()
 			containers = append(containers, containerInstance)
 		}
 	}
