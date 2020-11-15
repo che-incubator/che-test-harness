@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <testsuite name="Eclipse Che Performance Tests" tests="3" failures="0" errors="0" time="624.889">
+      <testcase name="[Workspaces] Start java Maven Workspace" classname="Eclipse Che Performance Tests" time="116.011490222"></testcase>
+      <testcase name="[Workspaces] Start NodeJS Workspace" classname="Eclipse Che Performance Tests" time="80.253738515"></testcase>
+      <testcase name="[Workspaces] Start Sample Workspace" classname="Eclipse Che Performance Tests" time="124.818200754"></testcase>
+  </testsuite>
