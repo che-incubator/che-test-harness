@@ -38,7 +38,7 @@ function deployTestHArness() {
     go mod vendor
 
     make  build-performance
-    "${TEST_HARNESS_ROOT}"/bin/che-test-harness --che-namespace=${OPERATOR_NAMESPACE} --metrics-files=${METRICS_FILES} --artifacts-dir=${ARTIFACTS_DIR}
+    /go/src/github.com/che-test-harness/bin/che-performance-test --che-namespace=${OPERATOR_NAMESPACE} --metrics-files=${METRICS_FILES} --artifacts-dir=${ARTIFACTS_DIR}
 
 }
 
