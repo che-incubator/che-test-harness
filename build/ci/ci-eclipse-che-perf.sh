@@ -20,7 +20,6 @@ function init() {
 }
 
 function installCheOperator() {
-    oc delete namespace ${OPERATOR_NAMESPACE} --wait
     oc create namespace ${OPERATOR_NAMESPACE}
     oc apply -f https://raw.githubusercontent.com/eclipse/che-operator/master/deploy/service_account.yaml -n ${OPERATOR_NAMESPACE}
     oc apply -f https://raw.githubusercontent.com/eclipse/che-operator/master/deploy/crds/org_v1_che_crd.yaml
