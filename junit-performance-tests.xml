@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <testsuite name="Eclipse Che Performance Tests" tests="3" failures="3" errors="0" time="0.178">
+      <testcase name="BeforeSuite" classname="Eclipse Che Performance Tests" time="0.143898864">
+          <failure type="Panic">/home/flacatus/WORKSPACE/incubator/original/che-test-harness/cmd/che-performance/che_performance_test.go:42&#xA;Test Panicked&#xA;/home/flacatus/go/pkg/mod/go.uber.org/zap@v1.14.1/zapcore/entry.go:230</failure>
+      </testcase>
+      <testcase name="AfterSuite" classname="Eclipse Che Performance Tests" time="0">
+          <failure type="Panic">/home/flacatus/WORKSPACE/incubator/original/che-test-harness/cmd/che-performance/che_performance_test.go:65&#xA;Test Panicked&#xA;/home/flacatus/go/pkg/mod/go.uber.org/zap@v1.14.1/zapcore/entry.go:230</failure>
+      </testcase>
+  </testsuite>

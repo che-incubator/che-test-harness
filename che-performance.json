@@ -1,0 +1,1 @@
+{"setup":{"artifacts_dir":"","aws_secret_folder":"/tmp","che_namespace":"che","deploy_che":true,"username":"admin","password":"admin"},"metrics":{"che_cluster_up_time":0,"che_pods":null,"workspaces":{"java_maven":{"containers":null},"nodejs":{"containers":null},"sample":{"containers":null}}}}
